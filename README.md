@@ -1,99 +1,96 @@
 # LibreOffice Solid Protocol Connector
 
-Connect LibreOffice directly to your Solid pod for true document sovereignty. This connector enables LibreOffice to read, write, and manage documents on any Solid-compliant storage using the W3C Solid protocol and WebID-OIDC authentication.
+**DEVELOPMENT STATUS**: Early stage implementation - not production ready
 
-## 🎯 Digital Sovereignty for Documents
+Connect LibreOffice to Solid pods for decentralized document storage. This experimental connector adds Solid protocol support to LibreOffice's remote storage options.
 
-Store your LibreOffice documents on **your** infrastructure - whether that's your personal Solid pod, organizational storage, or government-controlled servers. No more vendor lock-in for your document data.
+## 🚧 Current Status
 
-### Key Benefits
-- **🔒 Data Control**: Your documents stay on infrastructure you control
-- **🔐 WebID-OIDC Auth**: Secure authentication using your Solid identity
-- **🌐 Interoperable**: Works with any Solid pod provider (Inrupt, Community, self-hosted)
-- **🏛️ Government Ready**: Perfect for public sector digital sovereignty requirements
+This is an **early development implementation** that provides:
+- Basic framework for Solid protocol integration
+- Initial WebID-OIDC authentication structure
+- Foundation for HTTP operations (GET/PUT/DELETE)
+- UI integration in LibreOffice's service dialog
 
-## 🚀 Quick Integration
+**NOT YET IMPLEMENTED**:
+- Complete authentication flow
+- Actual file read/write operations
+- Token refresh handling
+- Error recovery
+- Production testing
 
-This connector integrates seamlessly into LibreOffice's existing remote storage system:
+## 🎯 Project Goal
 
-1. **Clone this repo** into your LibreOffice development environment
-2. **Copy the files** to your LibreOffice source tree following [INSTALL.md](INSTALL.md)
-3. **Build LibreOffice** with `--enable-solid` flag
-4. **Connect your pod** via File → Open → Manage Services → Add Service → "Solid Pod"
+Enable LibreOffice users to store documents on Solid pods - giving them control over where their data lives. This aligns with digital sovereignty initiatives where organizations want to control their document storage infrastructure.
 
-## 🏛️ Real-World Adoption
+## 🛠️ Development Setup
 
-### Government Deployments
-- **Schleswig-Holstein** (Germany): Supporting their LibreOffice migration with sovereign document storage
-- **Denmark Digital Affairs Ministry**: Enabling truly decentralized government document workflows
-- **EU Institutions**: GDPR-compliant document management with citizen data control
+### Prerequisites
+- Ubuntu 25.04 (only tested platform)
+- LibreOffice development environment
+- C++ build tools
 
-### Why Governments Choose This
-- **✅ Digital Sovereignty**: Documents stay within national/organizational boundaries  
-- **✅ Standards-Based**: Built on W3C Solid specification, not proprietary APIs
-- **✅ Vendor Independence**: No lock-in to any single storage provider
-- **✅ Identity Integration**: Works with existing organizational identity systems
-- **✅ Audit & Compliance**: Full transparency in document access and modification
+### Quick Start
+1. Clone this repository
+2. Follow [INSTALL.md](INSTALL.md) for integration steps
+3. Build LibreOffice with `--enable-solid` flag
+4. Test with a pod from https://start.inrupt.com/
 
-## 🔧 How It Works
+## 📁 What's Implemented
 
-```
-LibreOffice Writer/Calc/Draw
-        ↓
-Universal Content Broker
-        ↓
-Solid Protocol Connector (this project)
-        ↓
-WebID-OIDC Authentication
-        ↓
-Your Solid Pod (wherever you choose to host it)
-```
+### Core Structure ✅
+- Universal Content Provider (UCP) framework at `ucb/source/ucp/solid/`
+- Service dialog integration for pod configuration
+- Build system integration
 
-### Authentication Process
-1. **Enter your pod URL** (e.g., `https://your-pod.solidcommunity.net/`)
-2. **Auto-discover OIDC provider** via standard `.well-known/openid-configuration`
-3. **Authenticate** using your WebID credentials in your browser
-4. **Start working** - save/open documents directly to/from your pod
+### In Progress 🔄
+- WebID-OIDC authentication with browser flow
+- HTTP operations with authentication headers
+- Basic file operations (open/save)
 
-### File Operations
-- **📄 Create**: Save new documents directly to your pod
-- **📂 Organize**: Create folders and manage document hierarchy  
-- **🔄 Sync**: Changes are immediately reflected in your pod
-- **👥 Share**: Use Solid's ACL system for document sharing and permissions
+### Not Started ❌
+- Container operations (folder creation/listing)
+- Access control (ACL) integration
+- Comprehensive error handling
+- Performance optimization
 
-## 📚 Implementation Details
+## 🧪 Testing
 
-Based on battle-tested patterns from production Solid file managers:
+Currently testing basic connectivity:
+1. Add a pod service in LibreOffice
+2. Enter pod URL: `https://storage.inrupt.com/YOUR-POD-ID/`
+3. Attempt authentication (browser should open)
+4. Check if token is received
 
-- **Core Libraries**: Follows same patterns as [SolidFM](https://solidfm.app) and [NextFM](https://nextfm.app)
-- **HTTP Operations**: Uses `@inrupt/solid-client` equivalent operations for C++
-- **Authentication**: Implements same WebID-OIDC flow as working JavaScript clients
-- **File Management**: Maps JavaScript Solid operations to LibreOffice UCP architecture
+**Note**: File operations are not yet functional.
 
-### Architecture
-- **`ucb/source/ucp/solid/`**: Core Universal Content Provider implementation
-- **`svtools/source/dialogs/`**: Service dialog integration with authentication UI
-- **Authentication**: WebID-OIDC discovery and token management
-- **Build System**: Optional compilation with `--enable-solid` flag
+## 🤝 Contributing
 
-## 🤝 Open Source Collaboration
+This is an open development project. Key areas needing work:
+- Completing the OAuth2/OIDC flow
+- Implementing actual HTTP operations with CURL
+- Adding Turtle parsing for container listings
+- Error handling and user feedback
 
-Developed with:
-- **The Document Foundation**: LibreOffice core integration
-- **Inrupt**: Solid protocol expertise and production deployment experience  
-- **Government Partners**: Real-world requirements from digital sovereignty initiatives
-- **Community**: Open source contributors welcome
+## 📚 Technical Approach
 
-## 📖 Documentation
+The implementation follows patterns from JavaScript Solid libraries:
+- Authentication flow similar to `@inrupt/solid-client-authn`
+- File operations modeled on `@inrupt/solid-client`
+- Mapping JavaScript patterns to C++ LibreOffice infrastructure
 
-- **[INSTALL.md](INSTALL.md)**: Complete installation and build instructions
-- **[integration-examples/](integration-examples/)**: Required code modifications for LibreOffice source
+## ⚠️ Important Notes
 
-## 🔗 Try Working Examples
+- **Development only** - not ready for production use
+- **Limited testing** - only basic framework verified
+- **No guarantees** - interfaces may change significantly
+- **Contributions welcome** - help make this production ready
 
-See Solid file management in action:
-- **[SolidFM](https://solidfm.app)**: Production Solid file manager
-- **[NextFM](https://nextfm.app)**: NeXT-style interface for Solid
+## 📖 Resources
+
+- [Solid Protocol Specification](https://solidproject.org/TR/protocol)
+- [WebID-OIDC Specification](https://solid.github.io/webid-oidc-spec/)
+- [LibreOffice Development](https://wiki.documentfoundation.org/Development)
 
 ## 📄 License
 
@@ -101,4 +98,8 @@ Mozilla Public License 2.0 (MPL-2.0) - same as LibreOffice core.
 
 ---
 
-**Status**: Complete implementation ready for integration. Tested authentication and file operations.
+**Want to help?** This project needs developers familiar with:
+- C++ and LibreOffice internals
+- OAuth2/OIDC authentication
+- HTTP client programming
+- Solid protocol
