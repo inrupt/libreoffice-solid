@@ -45,106 +45,30 @@ cp "$SOLID_REPO/svtools/source/dialogs/SolidDetailsContainer.cxx" "$LO_CORE/svto
 
 ### Step 3: Apply Integration Changes
 
-You need to modify four existing LibreOffice files:
+The following changes have already been made to LibreOffice core:
 
-#### 3.1 Add Solid to Build System
-Edit `ucb/Module_ucb.mk` and add Solid to the module list:
+#### 3.1 Build System Integration ✅
+- Added `--with-solid` configure option to `configure.ac`
+- Added `WITH_SOLID` variable to `config_host.mk.in`
+- Updated `ucb/Module_ucb.mk` to include Solid library
+- Updated `svtools/Library_svt.mk` to include dialog files
 
-```makefile
-$(eval $(call gb_Module_add_targets,ucb,\
-    Library_cached1 \
-    Library_srtrs1 \
-    Library_ucb1 \
-    $(if $(ENABLE_LIBCMIS),Library_ucpcmis1) \
-    $(if $(WITH_WEBDAV),Library_ucpdav1) \
-    $(if $(ENABLE_SOLID),Library_ucpsolid) \    # Add this line
-    Library_ucpexpand1 \
-    Library_ucpext \
-    Library_ucpfile1 \
-    Library_ucphier1 \
-    Library_ucpimage \
-    Library_ucppkg1 \
-    Library_ucptdoc1 \
-))
-```
-
-#### 3.2 Add Service Dialog Container
-Edit `svtools/source/dialogs/ServerDetailsControls.hxx` and add at the end before `#endif`:
-
-```cpp
-class SolidDetailsContainer final : public DetailsContainer
-{
-private:
-    std::unique_ptr<weld::Entry> m_xPodUrl;
-    std::unique_ptr<weld::Button> m_xAuthButton;
-    OUString m_sPodUrl;
-    OUString m_sAccessToken;
-    bool m_bAuthenticated;
-
-public:
-    SolidDetailsContainer(PlaceEditDialog* pDialog);
-
-    virtual void set_visible(bool bShow) override;
-    virtual INetURLObject getUrl() override;
-    virtual bool setUrl(const INetURLObject& rUrl) override;
-    virtual void setUsername(const OUString& rUsername) override;
-    virtual void setPassword(const OUString& rPassword) override;
-    virtual bool enableUserCredentials() override { return false; }
-
-private:
-    void authenticate();
-    bool discoverOIDCIssuer(const OUString& podUrl, OUString& issuer);
-    bool performOIDCFlow(const OUString& issuer);
-    void updateAuthStatus();
-    
-    DECL_LINK(AuthClickHdl, weld::Button&, void);
-    DECL_LINK(PodUrlChangeHdl, weld::Entry&, void);
-};
-```
-
-#### 3.3 Update Service Dialog Implementation
-Edit `svtools/source/dialogs/ServerDetailsControls.cxx` and add at the end before the final comment:
-
-```cpp
-// Include the complete SolidDetailsContainer implementation
-// (Copy the contents of SolidDetailsContainer.cxx)
-```
-
-#### 3.4 Update Service Dialog Creation
-Edit `svtools/source/dialogs/PlaceEditDialog.cxx`:
-
-1. **Add to InitDetails() method** after the SSH details creation:
-```cpp
-// Create Solid Pod details control
-std::shared_ptr<DetailsContainer> xSolidDetails(std::make_shared<SolidDetailsContainer>(this));
-xSolidDetails->setChangeHdl( LINK( this, PlaceEditDialog, EditHdl ) );
-m_aDetailsContainers.push_back(xSolidDetails);
-```
-
-#### 3.5 Update UI Definition
-Edit `svtools/uiconfig/ui/placeedit.ui` and add "Solid Pod" to the service dropdown:
-
-```xml
-<items>
-  <item translatable="yes" context="placeedit|liststore1">WebDAV</item>
-  <item translatable="yes" context="placeedit|liststore1">SSH</item>
-  <item translatable="yes" context="placeedit|liststore1">Solid Pod</item>
-  <item translatable="yes" context="placeedit|liststore1">Windows Share</item>
-</items>
-```
+#### 3.2 Core Integration Files ✅
+- Universal Content Provider implementation in `ucb/source/ucp/solid/`
+- Dialog integration in `svtools/source/dialogs/SolidDetailsContainer.*`
+- Component registration and service definition
+- Complete OAuth 2.0 + PKCE authentication framework
 
 ### Step 4: Configure Build with Solid Support
 
 ```bash
-# Add Solid support to configure
-echo "AC_ARG_ENABLE(solid, AS_HELP_STRING([--enable-solid], [Enable Solid protocol support.]))" >> configure.ac
-echo "AC_SUBST(ENABLE_SOLID)" >> configure.ac
+# Configure LibreOffice with Solid support enabled
+./autogen.sh --with-solid
 
-# Run autogen with Solid enabled
-./autogen.sh --enable-solid
-
-# Alternative: Set manually if autogen doesn't recognize the flag
-echo "ENABLE_SOLID=TRUE" >> config_host.mk
+# This will:
+# - Enable Solid protocol support
+# - Include required dependencies (libcurl, openssl)
+# - Add Solid library to build targets
 ```
 
 ### Step 5: Build LibreOffice

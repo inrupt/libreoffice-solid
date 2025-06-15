@@ -31,9 +31,9 @@ Enable LibreOffice users to store documents on Solid pods - giving them control 
 - C++ build tools
 
 ### Quick Start
-1. Clone this repository
-2. Follow [INSTALL.md](INSTALL.md) for integration steps
-3. Build LibreOffice with `--enable-solid` flag
+1. Clone the LibreOffice core repository
+2. Copy this connector's files to the LibreOffice source tree
+3. Build LibreOffice with `--with-solid` flag
 4. Test with a pod from https://start.inrupt.com/
 
 ## 📁 What's Implemented
