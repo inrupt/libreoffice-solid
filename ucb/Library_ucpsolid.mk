@@ -28,6 +28,9 @@ $(eval $(call gb_Library_use_libraries,ucpsolid,\
 $(eval $(call gb_Library_add_exception_objects,ucpsolid,\
 	ucb/source/ucp/solid/ContentProperties \
 	ucb/source/ucp/solid/SolidSession \
+	ucb/source/ucp/solid/SolidHttpSession \
+	ucb/source/ucp/solid/SolidSessionBridge \
+	ucb/source/ucp/solid/SolidCallbackServer \
 	ucb/source/ucp/solid/SolidUri \
 	ucb/source/ucp/solid/SolidResourceAccess \
 	ucb/source/ucp/solid/SolidSessionFactory \
