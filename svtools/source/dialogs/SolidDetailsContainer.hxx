@@ -42,6 +42,14 @@ private:
     bool performOIDCFlow(const OUString& issuer);
     void updateAuthStatus();
     
+    // Security functions for OAuth 2.0 + PKCE
+    OUString generateSecureState();
+    OUString generateCodeVerifier();
+    OUString generateCodeChallenge(const OUString& codeVerifier);
+    bool exchangeCodeForToken(const OUString& issuer, const OUString& authCode,
+                             const OUString& codeVerifier, const OUString& state);
+    bool parseTokenResponse(const std::string& jsonResponse);
+    
     DECL_LINK(AuthClickHdl, weld::Button&, void);
     DECL_LINK(PodUrlChangeHdl, weld::Entry&, void);
 };
