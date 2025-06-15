@@ -20,7 +20,7 @@
 
 #include "solidprovider.hxx"
 #include "solidcontent.hxx"
-#include "SolidSessionFactory.hxx"
+#include "SolidSession.hxx"
 
 using namespace com::sun::star;
 using namespace solid_ucp;
@@ -30,8 +30,7 @@ using namespace solid_ucp;
 ContentProvider::ContentProvider(
     const uno::Reference< uno::XComponentContext >& rContext )
 : ::ucbhelper::ContentProviderImplHelper( rContext ),
-  m_xSolidSessionFactory( new SolidSessionFactory() ),
-  m_pProps( std::make_unique<PropertyMap>() )
+  m_xSolidSessionFactory( new SolidSessionFactory() )
 {
 }
 
@@ -122,7 +121,7 @@ ContentProvider::queryContent(
 
     rtl::Reference< Content > xContent;
     xContent = new Content( m_xContext, this, xCanonicId );
-    xContent->setIdentifier( xCanonicId );
+    // No need to call setIdentifier - it's handled in the constructor
 
     if ( !xContent->initResourceAccess() )
     {
@@ -137,10 +136,10 @@ ContentProvider::queryContent(
 
 bool ContentProvider::getProperty( const OUString & rPropName, beans::Property & rProp )
 {
-    if ( !m_pProps.get() )
-        return false;
-
-    return m_pProps->hasProperty( rPropName, rProp );
+    // TODO: Implement property mapping for Solid-specific properties
+    (void)rPropName;
+    (void)rProp;
+    return false;
 }
 
 extern "C" SAL_DLLPUBLIC_EXPORT css::uno::XInterface*

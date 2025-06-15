@@ -12,11 +12,16 @@
 #include <sal/config.h>
 
 #include <memory>
+#include <vector>
 #include <rtl/ustring.hxx>
+#include <rtl/ref.hxx>
 #include <salhelper/simplereferenceobject.hxx>
 #include <com/sun/star/io/XInputStream.hpp>
 #include <com/sun/star/io/XOutputStream.hpp>
 #include <com/sun/star/ucb/Lock.hpp>
+#include <com/sun/star/uno/XComponentContext.hpp>
+#include <com/sun/star/uno/Reference.hxx>
+#include <com/sun/star/task/XInteractionHandler.hpp>
 
 namespace com::sun::star::beans {
     struct NamedValue;
@@ -28,12 +33,15 @@ namespace com::sun::star::ucb {
 
 namespace solid_ucp {
 
+class SolidSession; // Forward declaration
+
 struct SolidRequestEnvironment
 {
     OUString m_aRequestURI;
     rtl::Reference< SolidSession > m_xSession;
     css::uno::Reference< css::uno::XComponentContext > m_xContext;
     css::uno::Reference< css::task::XInteractionHandler > m_xAuthListener;
+    css::uno::Reference< css::io::XInputStream > m_xInputStream;
 
     SolidRequestEnvironment( const OUString & rRequestURI,
                              const rtl::Reference< SolidSession > & xSession,
@@ -160,10 +168,6 @@ public:
 
     /// @throws SolidRequestException
     void HEAD( SolidRequestEnvironment & rEnv );
-
-    /// @throws SolidRequestException
-    css::uno::Reference< css::io::XInputStream >
-    GET( SolidRequestEnvironment & rEnv );
 
     /// @throws SolidRequestException
     css::uno::Reference< css::io::XInputStream >

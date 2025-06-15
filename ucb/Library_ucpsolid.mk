@@ -29,23 +29,12 @@ $(eval $(call gb_Library_use_externals,ucpsolid,\
 ))
 
 $(eval $(call gb_Library_add_exception_objects,ucpsolid,\
-	ucb/source/ucp/solid/ContentProperties \
-	ucb/source/ucp/solid/SolidSession \
 	ucb/source/ucp/solid/SolidHttpSession \
 	ucb/source/ucp/solid/SolidInputStream \
 	ucb/source/ucp/solid/SolidSessionBridge \
 	ucb/source/ucp/solid/SolidCallbackServer \
-	ucb/source/ucp/solid/SolidUri \
-	ucb/source/ucp/solid/SolidResourceAccess \
-	ucb/source/ucp/solid/SolidSessionFactory \
-	ucb/source/ucp/solid/SolidTypes \
-	ucb/source/ucp/solid/PropertyMap \
-	ucb/source/ucp/solid/SolidAuth \
-	ucb/source/ucp/solid/solidcontent \
-	ucb/source/ucp/solid/solidcontentcaps \
-	ucb/source/ucp/solid/soliddatasupplier \
 	ucb/source/ucp/solid/solidprovider \
-	ucb/source/ucp/solid/solidresultset \
+	ucb/source/ucp/solid/solidcontent \
 ))
 
 $(eval $(call gb_Library_add_defs,ucpsolid,\

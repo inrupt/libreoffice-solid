@@ -16,6 +16,7 @@
 #include <com/sun/star/io/XOutputStream.hpp>
 #include <com/sun/star/ucb/XCommandEnvironment.hpp>
 #include <com/sun/star/uno/XComponentContext.hpp>
+#include <com/sun/star/beans/NamedValue.hpp>
 
 namespace solid_ucp
 {

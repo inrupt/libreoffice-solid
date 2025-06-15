@@ -17,7 +17,6 @@
 #include <com/sun/star/beans/Property.hpp>
 #include <ucbhelper/providerhelper.hxx>
 #include "SolidSessionFactory.hxx"
-#include "PropertyMap.hxx"
 
 namespace solid_ucp {
 
@@ -37,7 +36,7 @@ inline constexpr OUString SOLID_COLLECTION_TYPE = u"application/" SOLID_URL_SCHE
 class ContentProvider : public ::ucbhelper::ContentProviderImplHelper
 {
     rtl::Reference< SolidSessionFactory > m_xSolidSessionFactory;
-    std::unique_ptr<PropertyMap> m_pProps;
+    // Property map will be initialized dynamically when needed
 
 public:
     explicit ContentProvider( const css::uno::Reference< css::uno::XComponentContext >& rContext );

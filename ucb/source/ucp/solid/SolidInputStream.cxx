@@ -10,8 +10,11 @@
 #include "SolidInputStream.hxx"
 #include <algorithm>
 #include <cstring>
+#include <com/sun/star/io/IOException.hpp>
 
 using namespace css;
+using namespace css::uno;
+using namespace css::io;
 
 namespace solid_ucp
 {

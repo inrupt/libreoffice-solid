@@ -20,6 +20,20 @@ using namespace com::sun::star;
 namespace solid_ucp
 {
 
+// Content type detection helper
+OUString detectContentType(const OUString& rURL) {
+    if (rURL.endsWithIgnoreAsciiCase(".odt")) return "application/vnd.oasis.opendocument.text";
+    if (rURL.endsWithIgnoreAsciiCase(".ods")) return "application/vnd.oasis.opendocument.spreadsheet";
+    if (rURL.endsWithIgnoreAsciiCase(".odp")) return "application/vnd.oasis.opendocument.presentation";
+    if (rURL.endsWithIgnoreAsciiCase(".odg")) return "application/vnd.oasis.opendocument.graphics";
+    if (rURL.endsWithIgnoreAsciiCase(".pdf")) return "application/pdf";
+    if (rURL.endsWithIgnoreAsciiCase(".txt")) return "text/plain";
+    if (rURL.endsWithIgnoreAsciiCase(".html")) return "text/html";
+    if (rURL.endsWithIgnoreAsciiCase(".jpg") || rURL.endsWithIgnoreAsciiCase(".jpeg")) return "image/jpeg";
+    if (rURL.endsWithIgnoreAsciiCase(".png")) return "image/png";
+    return "application/octet-stream";
+}
+
 // Bridge implementation: Connect SolidSession methods to SolidHttpSession
 
 void SolidSession::GET(SolidRequestEnvironment& rEnv)
@@ -156,45 +170,6 @@ void SolidSession::HEAD(SolidRequestEnvironment& rEnv)
     {
         throw SolidRequestException("HEAD request failed: " + e.Message, SC_INTERNAL_SERVER_ERROR);
     }
-}
-
-// Utility method to detect content type from URL
-OUString detectContentType(const OUString& rUrl)
-{
-    // Extract file extension and map to MIME type
-    sal_Int32 nDotPos = rUrl.lastIndexOf('.');
-    if (nDotPos == -1)
-        return "application/octet-stream";
-        
-    OUString sExtension = rUrl.copy(nDotPos + 1).toAsciiLowerCase();
-    
-    // Common MIME types for document formats
-    if (sExtension == "odt")
-        return "application/vnd.oasis.opendocument.text";
-    else if (sExtension == "ods")
-        return "application/vnd.oasis.opendocument.spreadsheet";
-    else if (sExtension == "odp")
-        return "application/vnd.oasis.opendocument.presentation";
-    else if (sExtension == "pdf")
-        return "application/pdf";
-    else if (sExtension == "docx")
-        return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-    else if (sExtension == "xlsx")
-        return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-    else if (sExtension == "pptx")
-        return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-    else if (sExtension == "txt")
-        return "text/plain";
-    else if (sExtension == "html" || sExtension == "htm")
-        return "text/html";
-    else if (sExtension == "xml")
-        return "text/xml";
-    else if (sExtension == "json")
-        return "application/json";
-    else if (sExtension == "ttl")
-        return "text/turtle";  // Solid containers
-    else
-        return "application/octet-stream";
 }
 
 } // namespace solid_ucp

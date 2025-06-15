@@ -311,8 +311,8 @@ OUString SolidHttpSession::getProvisionBaseUrl()
 OUString SolidHttpSession::resolveUrl(const OUString& rBaseUrl, const OUString& rPath)
 {
     INetURLObject aBase(rBaseUrl);
-    INetURLObject aResult(aBase, rPath, INetURLObject::EncodeMechanism::All);
-    return aResult.GetMainURL(INetURLObject::DecodeMechanism::NONE);
+    aBase.insertName(rPath);
+    return aBase.GetMainURL(INetURLObject::DecodeMechanism::NONE);
 }
 
 // HTTP response data structure
@@ -523,8 +523,8 @@ void SolidHttpSession::addAuthHeaders(uno::Sequence<beans::NamedValue>& rHeaders
         // Add Authorization header with Bearer token (Solid pattern)
         sal_Int32 nLen = rHeaders.getLength();
         rHeaders.realloc(nLen + 1);
-        rHeaders[nLen].Name = "Authorization";
-        rHeaders[nLen].Value <<= OUString("Bearer " + m_sAccessToken);
+        rHeaders.getArray()[nLen].Name = "Authorization";
+        rHeaders.getArray()[nLen].Value <<= OUString("Bearer " + m_sAccessToken);
     }
 }
 
