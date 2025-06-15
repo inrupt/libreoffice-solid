@@ -216,8 +216,8 @@ bool SolidDetailsContainer::performOIDCFlow(const OUString& issuer)
         
         // Following NextFM patterns, we simulate successful authentication
         // In production, this would be replaced with full OIDC client
-        m_sAccessToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImtleUlkIn0..."; // JWT token
-        m_sWebId = "https://your-webid.inrupt.net/profile/card#me";
+        m_sAccessToken = "PLACEHOLDER_TOKEN_FOR_DEVELOPMENT"; 
+        m_sWebId = "https://example.com/profile/card#me";
         
         return true;
     }
