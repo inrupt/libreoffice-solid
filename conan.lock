@@ -16,7 +16,7 @@
                 "python_requires": []
             },
             "2": {
-                "ref": "openssl/1.1.1",
+                "ref": "openssl/1.1.1w",
                 "requires": [],
                 "build_requires": [],
                 "python_requires": []
@@ -37,7 +37,7 @@
         "revisions": {
             "libreoffice-solid/1.0.0": "stable",
             "boost/1.82.0": "stable",
-            "openssl/1.1.1": "stable", 
+            "openssl/1.1.1w": "stable", 
             "libcurl/8.4.0": "stable",
             "zlib/1.2.13": "stable"
         }
