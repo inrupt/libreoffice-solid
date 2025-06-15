@@ -8,13 +8,17 @@
  */
 
 #include "SolidHttpSession.hxx"
+#include "SolidInputStream.hxx"
 #include <tools/urlobj.hxx>
 #include <rtl/uri.hxx>
 #include <comphelper/processfactory.hxx>
 #include <com/sun/star/system/SystemShellExecute.hpp>
 #include <com/sun/star/system/SystemShellExecuteFlags.hpp>
-#include <com/sun/star/ucb/SimpleFileAccess.hpp>
-#include <com/sun/star/io/XActiveDataSink.hpp>
+#include <sal/log.hxx>
+#include <curl/curl.h>
+#include <string>
+#include <vector>
+#include <memory>
 
 using namespace com::sun::star;
 
@@ -311,6 +315,49 @@ OUString SolidHttpSession::resolveUrl(const OUString& rBaseUrl, const OUString& 
     return aResult.GetMainURL(INetURLObject::DecodeMechanism::NONE);
 }
 
+// HTTP response data structure
+struct HttpResponse
+{
+    std::string data;
+    long httpCode;
+    std::string contentType;
+};
+
+// CURL callback function
+static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp)
+{
+    size_t totalSize = size * nmemb;
+    static_cast<std::string*>(userp)->append(static_cast<char*>(contents), totalSize);
+    return totalSize;
+}
+
+// CURL header callback
+static size_t HeaderCallback(char* buffer, size_t size, size_t nitems, void* userdata)
+{
+    size_t totalSize = size * nitems;
+    std::string header(buffer, totalSize);
+    
+    // Extract Content-Type
+    if (header.find("Content-Type:") == 0)
+    {
+        size_t colonPos = header.find(':');
+        if (colonPos != std::string::npos)
+        {
+            std::string contentType = header.substr(colonPos + 1);
+            // Trim whitespace
+            size_t start = contentType.find_first_not_of(" \t\r\n");
+            size_t end = contentType.find_last_not_of(" \t\r\n");
+            if (start != std::string::npos && end != std::string::npos)
+            {
+                contentType = contentType.substr(start, end - start + 1);
+                static_cast<HttpResponse*>(userdata)->contentType = contentType;
+            }
+        }
+    }
+    
+    return totalSize;
+}
+
 // Private implementation methods
 uno::Reference<io::XInputStream> SolidHttpSession::executeHttpRequest(
     const OUString& rUrl, 
@@ -319,17 +366,154 @@ uno::Reference<io::XInputStream> SolidHttpSession::executeHttpRequest(
     const OUString& rContentType,
     const uno::Reference<ucb::XCommandEnvironment>& rEnv)
 {
-    // Note: This is a placeholder implementation.
-    // Complete implementation would:
-    // 1. Create HTTP client using LibreOffice's networking infrastructure
-    // 2. Add Solid authentication headers (Authorization: Bearer token)
-    // 3. Set appropriate Content-Type headers
-    // 4. Execute the request and return response stream
-    
     SAL_INFO("ucb.ucp.solid", "HTTP " << rMethod << " " << rUrl);
     
-    // For demo purposes, return null
-    return uno::Reference<io::XInputStream>();
+    CURL* curl = curl_easy_init();
+    if (!curl)
+    {
+        SAL_WARN("ucb.ucp.solid", "Failed to initialize CURL");
+        throw uno::RuntimeException("HTTP client initialization failed");
+    }
+    
+    HttpResponse response;
+    
+    try
+    {
+        // Convert URL to UTF-8
+        OString sUrl = OUStringToOString(rUrl, RTL_TEXTENCODING_UTF8);
+        curl_easy_setopt(curl, CURLOPT_URL, sUrl.getStr());
+        
+        // Set HTTP method
+        if (rMethod == "GET")
+        {
+            curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
+        }
+        else if (rMethod == "PUT")
+        {
+            curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
+        }
+        else if (rMethod == "POST")
+        {
+            curl_easy_setopt(curl, CURLOPT_POST, 1L);
+        }
+        else if (rMethod == "DELETE")
+        {
+            curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+        }
+        else if (rMethod == "HEAD")
+        {
+            curl_easy_setopt(curl, CURLOPT_NOBODY, 1L);
+        }
+        
+        // Set up headers
+        struct curl_slist* headers = nullptr;
+        
+        // Add authentication header if we have a token
+        if (m_bAuthenticated && !m_sAccessToken.isEmpty())
+        {
+            OString authHeader = "Authorization: Bearer " + 
+                OUStringToOString(m_sAccessToken, RTL_TEXTENCODING_UTF8);
+            headers = curl_slist_append(headers, authHeader.getStr());
+            SAL_INFO("ucb.ucp.solid", "Added auth header");
+        }
+        
+        // Add content type for PUT/POST
+        if ((rMethod == "PUT" || rMethod == "POST") && !rContentType.isEmpty())
+        {
+            OString contentTypeHeader = "Content-Type: " + 
+                OUStringToOString(rContentType, RTL_TEXTENCODING_UTF8);
+            headers = curl_slist_append(headers, contentTypeHeader.getStr());
+        }
+        
+        // Add Solid-specific headers
+        headers = curl_slist_append(headers, "Accept: */*");
+        headers = curl_slist_append(headers, "User-Agent: LibreOffice-Solid/1.0");
+        
+        if (headers)
+        {
+            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+        }
+        
+        // Set up data callbacks
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response.data);
+        curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, HeaderCallback);
+        curl_easy_setopt(curl, CURLOPT_HEADERDATA, &response);
+        
+        // Handle request data for PUT/POST
+        std::string requestData;
+        if ((rMethod == "PUT" || rMethod == "POST") && rData.is())
+        {
+            // Read all data from input stream
+            const sal_Int32 nBufferSize = 8192;
+            uno::Sequence<sal_Int8> aBuffer(nBufferSize);
+            sal_Int32 nRead;
+            
+            while ((nRead = rData->readBytes(aBuffer, nBufferSize)) > 0)
+            {
+                requestData.append(reinterpret_cast<const char*>(aBuffer.getConstArray()), nRead);
+            }
+            
+            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, requestData.c_str());
+            curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, requestData.length());
+        }
+        
+        // SSL options
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);
+        
+        // Timeout settings
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 30L);
+        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10L);
+        
+        // Follow redirects
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+        curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 5L);
+        
+        // Execute the request
+        CURLcode res = curl_easy_perform(curl);
+        
+        // Get response code
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response.httpCode);
+        
+        // Clean up
+        if (headers)
+        {
+            curl_slist_free_all(headers);
+        }
+        curl_easy_cleanup(curl);
+        
+        // Check for errors
+        if (res != CURLE_OK)
+        {
+            SAL_WARN("ucb.ucp.solid", "CURL error: " << curl_easy_strerror(res));
+            throw uno::RuntimeException("HTTP request failed: " + OUString::createFromAscii(curl_easy_strerror(res)));
+        }
+        
+        if (response.httpCode >= 400)
+        {
+            SAL_WARN("ucb.ucp.solid", "HTTP error " << response.httpCode << " for " << rUrl);
+            throw uno::RuntimeException("HTTP error " + OUString::number(response.httpCode));
+        }
+        
+        SAL_INFO("ucb.ucp.solid", "HTTP " << rMethod << " success: " << response.httpCode 
+                 << ", " << response.data.length() << " bytes");
+        
+        // For methods that return data, create input stream
+        if (rMethod == "GET" || rMethod == "POST")
+        {
+            OString responseData(response.data.c_str(), response.data.length());
+            return new SolidInputStream(responseData);
+        }
+        
+        // For PUT/DELETE, return empty stream
+        return uno::Reference<io::XInputStream>();
+    }
+    catch (...)
+    {
+        curl_easy_cleanup(curl);
+        throw;
+    }
 }
 
 void SolidHttpSession::addAuthHeaders(uno::Sequence<beans::NamedValue>& rHeaders)

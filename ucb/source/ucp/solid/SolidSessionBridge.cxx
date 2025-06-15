@@ -12,6 +12,8 @@
 #include <com/sun/star/io/XSeekable.hpp>
 #include <comphelper/seqstream.hxx>
 #include <tools/stream.hxx>
+#include <tools/urlobj.hxx>
+#include <sal/log.hxx>
 
 using namespace com::sun::star;
 
@@ -157,7 +159,7 @@ void SolidSession::HEAD(SolidRequestEnvironment& rEnv)
 }
 
 // Utility method to detect content type from URL
-OUString SolidSession::detectContentType(const OUString& rUrl)
+OUString detectContentType(const OUString& rUrl)
 {
     // Extract file extension and map to MIME type
     sal_Int32 nDotPos = rUrl.lastIndexOf('.');

@@ -11,8 +11,6 @@ $(eval $(call gb_Library_Library,ucpsolid))
 
 $(eval $(call gb_Library_set_componentfile,ucpsolid,ucb/source/ucp/solid/ucpsolid,services))
 
-$(eval $(call gb_Library_use_external,ucpsolid,boost_headers))
-
 $(eval $(call gb_Library_use_sdk_api,ucpsolid))
 
 $(eval $(call gb_Library_use_libraries,ucpsolid,\
@@ -25,10 +23,16 @@ $(eval $(call gb_Library_use_libraries,ucpsolid,\
 	ucbhelper \
 ))
 
+$(eval $(call gb_Library_use_externals,ucpsolid,\
+	boost_headers \
+	curl \
+))
+
 $(eval $(call gb_Library_add_exception_objects,ucpsolid,\
 	ucb/source/ucp/solid/ContentProperties \
 	ucb/source/ucp/solid/SolidSession \
 	ucb/source/ucp/solid/SolidHttpSession \
+	ucb/source/ucp/solid/SolidInputStream \
 	ucb/source/ucp/solid/SolidSessionBridge \
 	ucb/source/ucp/solid/SolidCallbackServer \
 	ucb/source/ucp/solid/SolidUri \
