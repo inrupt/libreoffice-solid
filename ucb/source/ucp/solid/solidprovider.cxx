@@ -17,6 +17,7 @@
 #include <com/sun/star/ucb/IllegalIdentifierException.hpp>
 #include <rtl/ref.hxx>
 #include <rtl/ustrbuf.hxx>
+#include <salhelper/simplereferenceobject.hxx>
 
 #include "solidprovider.hxx"
 #include "solidcontent.hxx"
@@ -24,6 +25,22 @@
 
 using namespace com::sun::star;
 using namespace solid_ucp;
+
+// SolidSessionFactory Implementation
+class SolidSessionFactory : public salhelper::SimpleReferenceObject
+{
+public:
+    virtual ~SolidSessionFactory() override {}
+    
+    rtl::Reference<SolidSession> createSolidSession(
+        const OUString& rURL,
+        const uno::Reference<uno::XComponentContext>& rxContext)
+    {
+        // Create a null reference for the session factory parameter
+        rtl::Reference<SolidSession> nullSession;
+        return new SolidSession(nullSession, rURL, rxContext);
+    }
+};
 
 // ContentProvider Implementation.
 

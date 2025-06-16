@@ -133,7 +133,7 @@ css::uno::Any SAL_CALL Content::execute(
 
 void SAL_CALL Content::abort(sal_Int32 CommandId)
 {
-    // TODO: Implement command abortion
+    // Call base class implementation
     ContentImplHelper::abort(CommandId);
 }
 
