@@ -26,21 +26,6 @@
 using namespace com::sun::star;
 using namespace solid_ucp;
 
-// SolidSessionFactory Implementation
-class SolidSessionFactory : public salhelper::SimpleReferenceObject
-{
-public:
-    virtual ~SolidSessionFactory() override {}
-    
-    rtl::Reference<SolidSession> createSolidSession(
-        const OUString& rURL,
-        const uno::Reference<uno::XComponentContext>& rxContext)
-    {
-        // Create a null reference for the session factory parameter
-        rtl::Reference<SolidSession> nullSession;
-        return new SolidSession(nullSession, rURL, rxContext);
-    }
-};
 
 // ContentProvider Implementation.
 

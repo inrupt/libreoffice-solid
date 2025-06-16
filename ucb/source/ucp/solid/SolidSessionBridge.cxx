@@ -20,6 +20,45 @@ using namespace com::sun::star;
 namespace solid_ucp
 {
 
+// SolidSession Implementation
+
+SolidSession::SolidSession(
+    const rtl::Reference<SolidSession>& inSessionFactory,
+    const OUString& inUri,
+    const uno::Reference<uno::XComponentContext>& rxContext)
+: m_xSession(inSessionFactory)
+, m_aScheme("solid")
+, m_aHostName()
+, m_nPort(443)
+, m_xContext(rxContext)
+{
+    (void)inUri; // Extract hostname and port from URI if needed
+    SAL_INFO("ucb.ucp.solid", "SolidSession created for URI: " << inUri);
+}
+
+SolidSession::~SolidSession()
+{
+    SAL_INFO("ucb.ucp.solid", "SolidSession destroyed");
+}
+
+void SolidSession::Init()
+{
+    // TODO: Initialize session
+}
+
+void SolidSession::authenticate(const uno::Reference<task::XInteractionHandler>& xIH)
+{
+    (void)xIH;
+    // TODO: Implement authentication
+    SAL_INFO("ucb.ucp.solid", "SolidSession authentication requested");
+}
+
+void SolidSession::abort()
+{
+    // TODO: Implement abort
+    SAL_INFO("ucb.ucp.solid", "SolidSession abort requested");
+}
+
 // Content type detection helper
 OUString detectContentType(const OUString& rURL) {
     if (rURL.endsWithIgnoreAsciiCase(".odt")) return "application/vnd.oasis.opendocument.text";

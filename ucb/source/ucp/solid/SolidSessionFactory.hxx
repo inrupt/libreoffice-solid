@@ -11,12 +11,11 @@
 
 #include <sal/config.h>
 
-#include <map>
-#include <memory>
-#include <mutex>
 #include <rtl/ref.hxx>
 #include <rtl/ustring.hxx>
 #include <salhelper/simplereferenceobject.hxx>
+#include <com/sun/star/uno/XComponentContext.hpp>
+#include <com/sun/star/uno/Reference.hxx>
 
 namespace solid_ucp
 {
@@ -25,20 +24,12 @@ namespace solid_ucp
     class SolidSessionFactory : public salhelper::SimpleReferenceObject
     {
     public:
-        virtual ~SolidSessionFactory();
+        SolidSessionFactory();
+        virtual ~SolidSessionFactory() override;
 
-        /// @throws css::uno::RuntimeException
-        rtl::Reference< SolidSession > createSession( const OUString& inHostName,
-                                                       sal_Int32 nPort,
-                                                       const css::uno::Reference< css::uno::XComponentContext >& rxContext );
-
-        void releaseSession( rtl::Reference< SolidSession > const & xSession );
-
-    private:
-        typedef std::map< OUString, rtl::Reference< SolidSession > > Map;
-
-        Map m_aMap;
-        std::mutex m_aMutex;
+        virtual rtl::Reference<SolidSession> createSession(
+            const OUString& rURL,
+            const css::uno::Reference<css::uno::XComponentContext>& rxContext);
     };
 
 } // namespace solid_ucp

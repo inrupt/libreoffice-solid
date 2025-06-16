@@ -19,6 +19,7 @@
 #include <com/sun/star/beans/PropertySetInfoChangeEvent.hpp>
 #include <com/sun/star/ucb/CommandInfo.hpp>
 #include <com/sun/star/ucb/InsertCommandArgument.hpp>
+#include <com/sun/star/ucb/UnsupportedCommandException.hpp>
 #include <ucbhelper/propertyvalueset.hxx>
 #include <ucbhelper/contentidentifier.hxx>
 #include <cppuhelper/queryinterface.hxx>
@@ -96,45 +97,44 @@ css::uno::Any SAL_CALL Content::execute(
     sal_Int32 CommandId,
     const css::uno::Reference<css::ucb::XCommandEnvironment>& Environment)
 {
+    (void)CommandId;
+    (void)Environment;
+    
     css::uno::Any aRet;
-
+    
     if (aCommand.Name == "getPropertyValues")
     {
-        // TODO: Implement property retrieval
+        // Return empty property set for now
+        aRet <<= css::uno::Sequence<css::beans::PropertyValue>();
     }
     else if (aCommand.Name == "setPropertyValues")
     {
-        // TODO: Implement property setting
+        // Return empty sequence for now
+        aRet <<= css::uno::Sequence<css::uno::Any>();
+    }
+    else if (aCommand.Name == "getCommandInfo")
+    {
+        // Return our command info
+        aRet <<= getCommands(Environment);
     }
     else if (aCommand.Name == "getPropertySetInfo")
     {
-        // TODO: Implement property set info
-    }
-    else if (aCommand.Name == "open")
-    {
-        // TODO: Implement opening content
-    }
-    else if (aCommand.Name == "insert")
-    {
-        // TODO: Implement content insertion
-    }
-    else if (aCommand.Name == "delete")
-    {
-        // TODO: Implement content deletion
+        // Return our property info
+        aRet <<= getProperties(Environment);
     }
     else
     {
-        // Use base class for unhandled commands
-        aRet = ContentImplHelper::execute(aCommand, CommandId, Environment);
+        // Unsupported command
+        throw css::ucb::UnsupportedCommandException(aCommand.Name, static_cast<css::ucb::XContent*>(this));
     }
-
+    
     return aRet;
 }
 
 void SAL_CALL Content::abort(sal_Int32 CommandId)
 {
-    // Call base class implementation
-    ContentImplHelper::abort(CommandId);
+    (void)CommandId;
+    // TODO: Implement command abortion for Solid operations
 }
 
 // Non-interface methods
