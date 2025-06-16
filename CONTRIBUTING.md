@@ -53,9 +53,8 @@ This project follows LibreOffice coding conventions:
 
 Before submitting changes:
 1. Ensure code compiles without warnings
-2. Test with actual Solid pods (PodSpaces recommended)
-3. Verify OAuth 2.0 authentication flow works correctly
-4. Test document save/load operations
+2. Test basic connectivity with Solid pods (PodSpaces recommended)
+3. Verify new code doesn't break existing LibreOffice functionality
 
 ## Code of Conduct
 
@@ -63,6 +62,6 @@ This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.
 
 ## Questions?
 
-- GitHub Discussions: https://github.com/inrupt/libreoffice-solid/discussions
+- GitHub Issues: https://github.com/inrupt/libreoffice-solid/issues
 - Solid Community: https://solidproject.org/developers
 - LibreOffice Development: https://wiki.documentfoundation.org/Development
