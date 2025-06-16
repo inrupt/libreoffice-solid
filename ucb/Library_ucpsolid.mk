@@ -32,6 +32,7 @@ $(eval $(call gb_Library_add_exception_objects,ucpsolid,\
 	ucb/source/ucp/solid/SolidHttpSession \
 	ucb/source/ucp/solid/SolidInputStream \
 	ucb/source/ucp/solid/SolidSessionBridge \
+	ucb/source/ucp/solid/SolidSessionFactory \
 	ucb/source/ucp/solid/SolidCallbackServer \
 	ucb/source/ucp/solid/solidprovider \
 	ucb/source/ucp/solid/solidcontent \
