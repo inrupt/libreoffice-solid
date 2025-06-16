@@ -1,0 +1,14 @@
+# LibreOffice Solid Protocol Connector
+# These owners will be the default reviewers for everything in the repo.
+
+# Global ownership
+* @d-a-v-i--
+
+# UCB implementation
+/ucb/ @d-a-v-i--
+
+# UI integration  
+/svtools/ @d-a-v-i--
+
+# Documentation
+/*.md @d-a-v-i--

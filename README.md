@@ -2,7 +2,7 @@
 
 **DEVELOPMENT STATUS**: Early stage implementation - not production ready
 
-Connect LibreOffice to Solid pods for decentralized document storage. This experimental connector adds Solid protocol support to LibreOffice's remote storage options.
+An Inrupt project to connect LibreOffice to Solid pods for decentralized document storage. This experimental connector adds Solid protocol support to LibreOffice's remote storage options.
 
 ## 🚧 Current Status
 
