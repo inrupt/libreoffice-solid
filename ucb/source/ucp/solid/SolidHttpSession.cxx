@@ -9,6 +9,7 @@
 
 #include "SolidHttpSession.hxx"
 #include "SolidInputStream.hxx"
+#include "SolidOAuth.hxx"
 #include <tools/urlobj.hxx>
 #include <rtl/uri.hxx>
 #include <comphelper/processfactory.hxx>
@@ -28,6 +29,7 @@ namespace solid_ucp
 SolidHttpSession::SolidHttpSession(const uno::Reference<uno::XComponentContext>& xContext)
     : m_bAuthenticated(false)
     , m_xContext(xContext)
+    , m_oauthClient(std::make_unique<SolidOAuthClient>(xContext))
 {
 }
 
@@ -35,6 +37,7 @@ SolidHttpSession::SolidHttpSession(const OUString& rPodUrl, const uno::Reference
     : m_sPodUrl(rPodUrl)
     , m_bAuthenticated(false)
     , m_xContext(xContext)
+    , m_oauthClient(std::make_unique<SolidOAuthClient>(xContext))
 {
 }
 
@@ -366,7 +369,6 @@ uno::Reference<io::XInputStream> SolidHttpSession::executeHttpRequest(
     const OUString& rContentType,
     const uno::Reference<ucb::XCommandEnvironment>& rEnv)
 {
-    SAL_INFO("ucb.ucp.solid", "HTTP " << rMethod << " " << rUrl);
     
     CURL* curl = curl_easy_init();
     if (!curl)
@@ -408,13 +410,23 @@ uno::Reference<io::XInputStream> SolidHttpSession::executeHttpRequest(
         // Set up headers
         struct curl_slist* headers = nullptr;
         
-        // Add authentication header if we have a token
+        // Add DPoP authentication headers if we have a token
         if (m_bAuthenticated && !m_sAccessToken.isEmpty())
         {
-            OString authHeader = "Authorization: Bearer " + 
+            // Authorization: DPoP <access_token>
+            OString authHeader = "Authorization: DPoP " + 
                 OUStringToOString(m_sAccessToken, RTL_TEXTENCODING_UTF8);
             headers = curl_slist_append(headers, authHeader.getStr());
-            SAL_INFO("ucb.ucp.solid", "Added auth header");
+            
+            // DPoP: <jwt_token> - Generate per-request DPoP token
+            if (m_oauthClient && m_oauthClient->isAuthenticated()) {
+                OUString dpopToken = m_oauthClient->getDPoPHeader(rMethod, rUrl);
+                if (!dpopToken.isEmpty()) {
+                    OString dpopHeader = "DPoP: " + 
+                        OUStringToOString(dpopToken, RTL_TEXTENCODING_UTF8);
+                    headers = curl_slist_append(headers, dpopHeader.getStr());
+                }
+            }
         }
         
         // Add content type for PUT/POST
@@ -495,9 +507,6 @@ uno::Reference<io::XInputStream> SolidHttpSession::executeHttpRequest(
             SAL_WARN("ucb.ucp.solid", "HTTP error " << response.httpCode << " for " << rUrl);
             throw uno::RuntimeException("HTTP error " + OUString::number(response.httpCode));
         }
-        
-        SAL_INFO("ucb.ucp.solid", "HTTP " << rMethod << " success: " << response.httpCode 
-                 << ", " << response.data.length() << " bytes");
         
         // For methods that return data, create input stream
         if (rMethod == "GET" || rMethod == "POST")

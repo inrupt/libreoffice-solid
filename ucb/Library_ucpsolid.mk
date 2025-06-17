@@ -26,6 +26,7 @@ $(eval $(call gb_Library_use_libraries,ucpsolid,\
 $(eval $(call gb_Library_use_externals,ucpsolid,\
 	boost_headers \
 	curl \
+	openssl \
 ))
 
 $(eval $(call gb_Library_add_exception_objects,ucpsolid,\
@@ -34,6 +35,7 @@ $(eval $(call gb_Library_add_exception_objects,ucpsolid,\
 	ucb/source/ucp/solid/SolidSessionBridge \
 	ucb/source/ucp/solid/SolidSessionFactory \
 	ucb/source/ucp/solid/SolidCallbackServer \
+	ucb/source/ucp/solid/SolidOAuth \
 	ucb/source/ucp/solid/solidprovider \
 	ucb/source/ucp/solid/solidcontent \
 ))

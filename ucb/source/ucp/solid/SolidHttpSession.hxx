@@ -17,6 +17,8 @@
 #include <com/sun/star/ucb/XCommandEnvironment.hpp>
 #include <com/sun/star/uno/XComponentContext.hpp>
 #include <com/sun/star/beans/NamedValue.hpp>
+#include "SolidOAuth.hxx"
+#include <memory>
 
 namespace solid_ucp
 {
@@ -34,6 +36,7 @@ private:
     OUString m_sIssuer;
     bool m_bAuthenticated;
     css::uno::Reference<css::uno::XComponentContext> m_xContext;
+    std::unique_ptr<SolidOAuthClient> m_oauthClient;
     
 public:
     SolidHttpSession(const css::uno::Reference<css::uno::XComponentContext>& xContext);

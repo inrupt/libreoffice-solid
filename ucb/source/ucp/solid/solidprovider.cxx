@@ -18,6 +18,8 @@
 #include <rtl/ref.hxx>
 #include <rtl/ustrbuf.hxx>
 #include <salhelper/simplereferenceobject.hxx>
+#include <tools/urlobj.hxx>
+#include <sal/log.hxx>
 
 #include "solidprovider.hxx"
 #include "solidcontent.hxx"
@@ -101,11 +103,36 @@ uno::Reference< ucb::XContent > SAL_CALL
 ContentProvider::queryContent(
         const uno::Reference< ucb::XContentIdentifier >& Identifier )
 {
+    
     // Check URL scheme...
     const OUString aScheme
         = Identifier->getContentProviderScheme().toAsciiLowerCase();
-    if ( aScheme != SOLID_URL_SCHEME && aScheme != SOLIDS_URL_SCHEME )
+    
+    
+    // Accept both solid:// schemes and https:// URLs for Solid pods
+    bool bIsSolidScheme = (aScheme == SOLID_URL_SCHEME || aScheme == SOLIDS_URL_SCHEME);
+    bool bIsSolidPodUrl = false;
+    
+    if (aScheme == "https" || aScheme == "http")
+    {
+        // Check if this is a Solid pod URL based on domain
+        INetURLObject aURL(Identifier->getContentIdentifier());
+        OUString sHost = aURL.GetHost();
+        
+        
+        // Detect known Solid pod domains (following NextFM pattern)
+        bIsSolidPodUrl = sHost.indexOf("storage.inrupt.com") != -1 ||
+                        sHost.endsWith(".solidcommunity.net") ||
+                        sHost.endsWith(".inrupt.net") ||
+                        sHost.indexOf("storage.") == 0; // Generic storage. pattern
+                        
+    }
+    
+    if (!bIsSolidScheme && !bIsSolidPodUrl)
+    {
         throw ucb::IllegalIdentifierException();
+    }
+    
 
     // Normalize URL and create new identifier.
     OUString aURL = Identifier->getContentIdentifier();

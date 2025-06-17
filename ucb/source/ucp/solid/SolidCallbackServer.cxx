@@ -66,7 +66,6 @@ sal_uInt16 SolidCallbackServer::start()
     
     m_serverThread = std::thread(&SolidCallbackServer::serverLoop, this);
     
-    SAL_INFO("ucb.ucp.solid", "Callback server started on port " << m_nPort);
     return m_nPort;
 }
 
@@ -201,7 +200,6 @@ void SolidCallbackServer::serverLoop()
 
 void SolidCallbackServer::handleRequest(const OString& request)
 {
-    SAL_INFO("ucb.ucp.solid", "Received callback request");
     
     // Extract authorization code and state from query parameters
     OUString sCode = extractParameterValue(request, "code");
@@ -236,7 +234,6 @@ void SolidCallbackServer::handleRequest(const OString& request)
         m_condition.notify_all();
         
         sResponse = generateSuccessPage();
-        SAL_INFO("ucb.ucp.solid", "Authorization code received successfully");
     }
     
     // Send HTTP response (simplified)
@@ -247,7 +244,6 @@ void SolidCallbackServer::handleRequest(const OString& request)
     
     // Note: In complete implementation, would send this response back to client
     // For now, just log it
-    SAL_INFO("ucb.ucp.solid", "Sending response: " << sHttpResponse.getLength() << " bytes");
 }
 
 OUString SolidCallbackServer::extractParameterValue(const OString& request, const OString& paramName)
