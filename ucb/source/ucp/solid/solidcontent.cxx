@@ -25,6 +25,7 @@
 #include <cppuhelper/queryinterface.hxx>
 #include <cppuhelper/typeprovider.hxx>
 #include <osl/mutex.hxx>
+#include "SolidOAuth.hxx"
 
 using namespace css;
 using namespace solid_ucp;
@@ -122,6 +123,11 @@ css::uno::Any SAL_CALL Content::execute(
         // Return our property info
         aRet <<= getProperties(Environment);
     }
+    else if (aCommand.Name == "open")
+    {
+        // Handle file opening with DPoP authentication
+        handleOpenCommand(aCommand, Environment);
+    }
     else
     {
         // Unsupported command
@@ -200,6 +206,28 @@ OUString Content::getParentURL()
     if (nPos > 0)
         return aURL.copy(0, nPos);
     return OUString();
+}
+
+void Content::handleOpenCommand(const css::ucb::Command& aCommand, 
+                               const css::uno::Reference<css::ucb::XCommandEnvironment>& Environment)
+{
+    (void)aCommand;  // Suppress unused parameter warning
+    (void)Environment;
+    
+    OUString aURL = getIdentifier()->getContentIdentifier();
+    
+    // Initialize DPoP OAuth client and authenticate
+    SolidOAuthClient oauthClient(m_xContext);
+    bool authResult = oauthClient.authenticate(aURL);
+    
+    if (!authResult)
+    {
+        throw css::uno::RuntimeException("Authentication failed for " + aURL, 
+                                        static_cast<css::ucb::XContent*>(this));
+    }
+    
+    // Continue with authenticated request using DPoP tokens
+    // TODO: Use tokens.access_token and tokens.dpop_* for HTTP requests
 }
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

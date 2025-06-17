@@ -67,7 +67,11 @@ public:
                       css::beans::Property & rProp );
                       
     rtl::Reference< SolidSessionFactory > getSolidSessionFactory()
-        { return m_xSolidSessionFactory; }
+        { 
+            if (!m_xSolidSessionFactory.is())
+                m_xSolidSessionFactory = new SolidSessionFactory();
+            return m_xSolidSessionFactory; 
+        }
 };
 
 }

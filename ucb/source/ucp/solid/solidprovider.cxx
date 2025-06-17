@@ -24,6 +24,7 @@
 #include "solidprovider.hxx"
 #include "solidcontent.hxx"
 #include "SolidSession.hxx"
+#include "SolidSessionFactory.hxx"
 
 using namespace com::sun::star;
 using namespace solid_ucp;
@@ -33,9 +34,11 @@ using namespace solid_ucp;
 
 ContentProvider::ContentProvider(
     const uno::Reference< uno::XComponentContext >& rContext )
-: ::ucbhelper::ContentProviderImplHelper( rContext ),
-  m_xSolidSessionFactory( new SolidSessionFactory() )
+: ::ucbhelper::ContentProviderImplHelper( rContext )
 {
+    SAL_WARN("ucb.ucp.solid", "=== SolidContentProvider CONSTRUCTOR START ===");
+    // Initialize session factory later in queryContent to avoid constructor issues
+    SAL_WARN("ucb.ucp.solid", "=== SolidContentProvider CONSTRUCTED SUCCESSFULLY ===");
 }
 
 ContentProvider::~ContentProvider()
@@ -103,6 +106,8 @@ uno::Reference< ucb::XContent > SAL_CALL
 ContentProvider::queryContent(
         const uno::Reference< ucb::XContentIdentifier >& Identifier )
 {
+    SAL_WARN("ucb.ucp.solid", "SolidContentProvider::queryContent called with URL: " 
+             << Identifier->getContentIdentifier());
     
     // Check URL scheme...
     const OUString aScheme
@@ -113,18 +118,24 @@ ContentProvider::queryContent(
     bool bIsSolidScheme = (aScheme == SOLID_URL_SCHEME || aScheme == SOLIDS_URL_SCHEME);
     bool bIsSolidPodUrl = false;
     
+    SAL_WARN("ucb.ucp.solid", "URL scheme: " << aScheme << " checking against solid schemes");
+    
     if (aScheme == "https" || aScheme == "http")
     {
         // Check if this is a Solid pod URL based on domain
         INetURLObject aURL(Identifier->getContentIdentifier());
         OUString sHost = aURL.GetHost();
         
+        SAL_WARN("ucb.ucp.solid", "SolidContentProvider::queryContent - URL: " 
+                 << Identifier->getContentIdentifier() << " Host: " << sHost);
         
         // Detect known Solid pod domains (following NextFM pattern)
         bIsSolidPodUrl = sHost.indexOf("storage.inrupt.com") != -1 ||
                         sHost.endsWith(".solidcommunity.net") ||
                         sHost.endsWith(".inrupt.net") ||
                         sHost.indexOf("storage.") == 0; // Generic storage. pattern
+        
+        SAL_WARN("ucb.ucp.solid", "SolidContentProvider - Domain check result: " << (bIsSolidPodUrl ? "MATCH" : "NO MATCH"));
                         
     }
     

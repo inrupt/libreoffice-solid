@@ -59,6 +59,8 @@ public:
     // Non-interface methods
     bool initResourceAccess();
     bool exchangeIdentity(const css::uno::Reference<css::ucb::XContentIdentifier>& xNewId);
+    void handleOpenCommand(const css::ucb::Command& aCommand, 
+                          const css::uno::Reference<css::ucb::XCommandEnvironment>& Environment);
 };
 
 }
