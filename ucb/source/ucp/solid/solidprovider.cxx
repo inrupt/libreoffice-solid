@@ -7,7 +7,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <memory>
 #include <com/sun/star/ucb/XContentIdentifier.hpp>
 #include <cppuhelper/queryinterface.hxx>
 #include <cppuhelper/weak.hxx>
@@ -196,7 +195,15 @@ ContentProvider::queryContent(
     if ( bNewId && !xContent->exchangeIdentity( xCanonicId ) )
         throw ucb::IllegalIdentifierException();
 
-    return uno::Reference<ucb::XContent>(xContent.get());
+    return static_cast<ucb::XContent*>(xContent.get());
+}
+
+sal_Int32 SAL_CALL ContentProvider::compareContentIds( const uno::Reference< ucb::XContentIdentifier >& Id1,
+                                                       const uno::Reference< ucb::XContentIdentifier >& Id2 )
+{
+    OUString aURL1 = Id1->getContentIdentifier();
+    OUString aURL2 = Id2->getContentIdentifier();
+    return aURL1.compareTo(aURL2);
 }
 
 bool ContentProvider::getProperty( const OUString & rPropName, beans::Property & rProp )

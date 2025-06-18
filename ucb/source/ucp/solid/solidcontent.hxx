@@ -12,9 +12,11 @@
 #include <com/sun/star/ucb/XContent.hpp>
 #include <com/sun/star/ucb/XContentIdentifier.hpp>
 #include <com/sun/star/lang/XServiceInfo.hpp>
-#include <com/sun/star/io/XInputStream.hpp>
+#include <com/sun/star/uno/XComponentContext.hpp>
 #include <cppuhelper/implbase2.hxx>
 #include <rtl/ustring.hxx>
+
+using rtl::OUString;
 
 namespace solid { namespace libreoffice {
 
@@ -23,7 +25,9 @@ class ContentProvider;
 class Content : public cppu::WeakImplHelper2<css::ucb::XContent, css::lang::XServiceInfo>
 {
 private:
-    rtl::Reference<ContentProvider> m_xProvider;
+    ContentProvider* m_pProvider;
+    css::uno::Reference<css::uno::XComponentContext> m_xContext;
+    css::uno::Reference<css::ucb::XContentIdentifier> m_xIdentifier;
 
 public:
     Content(const css::uno::Reference<css::uno::XComponentContext>& rxContext,
@@ -44,27 +48,12 @@ public:
     virtual css::uno::Sequence<OUString> SAL_CALL getSupportedServiceNames() override;
 
     // XContent
+    virtual css::uno::Reference<css::ucb::XContentIdentifier> SAL_CALL getIdentifier() override;
     virtual OUString SAL_CALL getContentType() override;
 
-    // XCommandProcessor
-    virtual css::uno::Any SAL_CALL execute(
-        const css::ucb::Command& aCommand,
-        sal_Int32 CommandId,
-        const css::uno::Reference<css::ucb::XCommandEnvironment>& Environment) override;
-    virtual void SAL_CALL abort(sal_Int32 CommandId) override;
-
-    // Pure virtual methods from ContentImplHelper
-    virtual css::uno::Sequence<css::beans::Property> getProperties(
-        const css::uno::Reference<css::ucb::XCommandEnvironment>& xEnv) override;
-    virtual css::uno::Sequence<css::ucb::CommandInfo> getCommands(
-        const css::uno::Reference<css::ucb::XCommandEnvironment>& xEnv) override;
-    virtual OUString getParentURL() override;
-
-    // Non-interface methods
+    // Non-interface methods  
     bool initResourceAccess();
     bool exchangeIdentity(const css::uno::Reference<css::ucb::XContentIdentifier>& xNewId);
-    void handleOpenCommand(const css::ucb::Command& aCommand, 
-                          const css::uno::Reference<css::ucb::XCommandEnvironment>& Environment);
 };
 
 }

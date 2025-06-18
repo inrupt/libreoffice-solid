@@ -24,10 +24,10 @@
 #include <fcntl.h>
 #endif
 
-using namespace std::chrono_literals;
-
 namespace solid { namespace libreoffice
 {
+
+using namespace std::chrono_literals;
 
 SolidCallbackServer::SolidCallbackServer()
     : m_nPort(0)

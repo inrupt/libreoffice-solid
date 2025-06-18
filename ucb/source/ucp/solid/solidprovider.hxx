@@ -10,9 +10,6 @@
 #pragma once
 
 #include <sal/config.h>
-
-#include <memory>
-
 #include <rtl/ref.hxx>
 #include <com/sun/star/beans/Property.hpp>
 #include <com/sun/star/ucb/XContentProvider.hpp>
@@ -61,6 +58,8 @@ public:
     // XContentProvider
     virtual css::uno::Reference< css::ucb::XContent > SAL_CALL
     queryContent( const css::uno::Reference< css::ucb::XContentIdentifier >& Identifier ) override;
+    virtual sal_Int32 SAL_CALL compareContentIds( const css::uno::Reference< css::ucb::XContentIdentifier >& Id1,
+                                                  const css::uno::Reference< css::ucb::XContentIdentifier >& Id2 ) override;
 
     // Non-interface methods.
     bool getProperty( const OUString & rPropName,
