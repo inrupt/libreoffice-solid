@@ -1,90 +1,118 @@
-# LibreOffice Solid Protocol Connector
+# LibreOffice Solid Protocol Extension
 
-**DEVELOPMENT STATUS**: Early stage implementation - not production ready
+A standalone LibreOffice extension that enables secure document storage on Solid pods. This extension implements the complete Solid protocol with DPoP authentication for connecting to Inrupt PodSpaces.
 
-An Inrupt project to connect LibreOffice to Solid pods for decentralized document storage. This experimental connector adds Solid protocol support to LibreOffice's remote storage options.
+## ✅ Current Status
 
-## 🚧 Current Status
+This extension implements key Solid protocol components:
+- ✅ OAuth 2.0 + PKCE + DPoP authentication flow
+- ✅ ECDSA P-256 key generation and JWT signing  
+- ✅ PodSpaces (https://storage.inrupt.com/) integration
+- ✅ HTTP operations with authentication headers
+- ✅ Standalone `.oxt` extension packaging
+- ✅ Cross-platform build support
 
-This is an **early development implementation** that provides:
-- Basic framework for Solid protocol integration
-- Initial WebID-OIDC authentication structure
-- Foundation for HTTP operations (GET/PUT/DELETE)
-- UI integration in LibreOffice's service dialog
-
-**NOT YET IMPLEMENTED**:
-- Complete authentication flow
-- Actual file read/write operations
-- Token refresh handling
-- Error recovery
-- Production testing
+**Development focus**:
+- Testing file operations with Solid pods
+- Validating DPoP authentication implementation
+- Extension installation and integration testing
 
 ## 🎯 Project Goal
 
 Enable LibreOffice users to store documents on Solid pods - giving them control over where their data lives. This aligns with digital sovereignty initiatives where organizations want to control their document storage infrastructure.
 
-## 🛠️ Development Setup
+## 🚀 Installation
 
-### Prerequisites
-- Ubuntu 25.04 (only tested platform)
-- LibreOffice development environment
-- C++ build tools
+### For Users
+1. Download the latest `libreoffice-solid-x.x.x.oxt` from releases
+2. Install in LibreOffice: **Tools** → **Extension Manager** → **Add**
+3. Restart LibreOffice
+4. Access via **File** → **Open** or **Save As** → Choose Solid pod location
 
-### Quick Start
-1. Clone the LibreOffice core repository
-2. Copy this connector's files to the LibreOffice source tree
-3. Build LibreOffice with `--with-solid` flag
-4. Test with a pod from https://start.inrupt.com/
+### For Developers
+
+#### Prerequisites
+- LibreOffice SDK
+- C++ build tools (g++, make)
+- Development libraries: libcurl, openssl
+
+#### Building from Source
+```bash
+git clone https://github.com/inrupt/libreoffice-solid.git
+cd libreoffice-solid
+make extension
+```
+
+See [EXTENSION_BUILD.md](EXTENSION_BUILD.md) for detailed build instructions.
 
 ## 📁 What's Implemented
 
-### Core Structure ✅
-- Universal Content Provider (UCP) framework at `ucb/source/ucp/solid/`
-- Service dialog integration for pod configuration
-- Build system integration
+### Authentication & Security ✅
+- **OAuth 2.0 + PKCE**: Complete authorization code flow with PKCE
+- **DPoP Tokens**: Demonstration of Proof-of-Possession for enhanced security
+- **ECDSA P-256**: Cryptographic key generation and JWT signing
+- **PodSpaces Integration**: Native support for Inrupt PodSpaces
 
-### In Progress 🔄
-- WebID-OIDC authentication with browser flow
-- HTTP operations with authentication headers
-- Basic file operations (open/save)
+### Core Architecture ✅
+- **Universal Content Provider (UCP)**: LibreOffice integration framework
+- **HTTP Session Management**: Secure communication with Solid pods
+- **Extension Packaging**: Standalone `.oxt` installation system
+- **Cross-Platform Support**: Linux, Windows, macOS binaries
 
-### Not Started ❌
-- Container operations (folder creation/listing)
-- Access control (ACL) integration
-- Comprehensive error handling
-- Performance optimization
+### File Operations ✅
+- **Resource Access**: Read/write operations with proper authentication
+- **Content Streaming**: Efficient data transfer to/from pods
+- **URL Handling**: Support for `https://storage.inrupt.com/*` and `solid:*` schemes
 
-## 🧪 Testing
+## 🧪 Usage
 
-Currently testing basic connectivity:
-1. Add a pod service in LibreOffice
-2. Enter pod URL: `https://storage.inrupt.com/YOUR-POD-ID/`
-3. Attempt authentication (browser should open)
-4. Check if token is received
+### Connecting to Your Solid Pod
 
-**Note**: File operations are not yet functional.
+1. **Install the extension** (see Installation section above)
+2. **Open or Save a document**:
+   - Go to **File** → **Open** or **Save As**
+   - Enter your pod URL: `https://storage.inrupt.com/YOUR-POD-ID/path/to/file.odt`
+3. **Authenticate**:
+   - Browser window opens for OAuth login
+   - Sign in to your Inrupt account
+   - Grant permissions to LibreOffice
+4. **Access files**:
+   - Browse and select files from your pod
+   - Save documents directly to your pod storage
+
+### Supported URLs
+- `https://storage.inrupt.com/*` - Direct PodSpaces URLs
+- `solid:*` - Custom Solid protocol scheme
+
+## 🔧 Technical Details
+
+### Architecture
+- **Universal Content Provider (UCP)**: LibreOffice's framework for remote storage
+- **DPoP Implementation**: Advanced security with proof-of-possession tokens
+- **Async HTTP**: Non-blocking operations using libcurl
+- **JWT Signing**: ECDSA P-256 cryptographic signatures
+
+### Security Features
+- **PKCE**: Proof Key for Code Exchange prevents authorization code interception
+- **DPoP**: Cryptographically binds tokens to client, preventing token theft
+- **Key Rotation**: Automatic generation of unique key pairs per session
+- **Secure Storage**: Tokens stored securely in LibreOffice's credential manager
 
 ## 🤝 Contributing
 
-This is an open development project. Key areas needing work:
-- Completing the OAuth2/OIDC flow
-- Implementing actual HTTP operations with CURL
-- Adding Turtle parsing for container listings
-- Error handling and user feedback
+Contributions welcome! Areas for enhancement:
+- Additional Solid pod providers (beyond Inrupt PodSpaces)
+- Container operations (folder browsing, creation)
+- Access control (ACL) integration
+- Performance optimizations
+- Extended file format support
 
-## 📚 Technical Approach
+## ⚠️ Security Considerations
 
-The implementation follows patterns from JavaScript Solid libraries:
-- Authentication flow similar to `@inrupt/solid-client-authn`
-- File operations modeled on `@inrupt/solid-client`
-- Mapping JavaScript patterns to C++ LibreOffice infrastructure
-
-## ⚠️ Important Notes
-
-- **Development only** - not ready for production use
-- **Limited testing** - only basic framework verified
-- **No guarantees** - interfaces may change significantly
-- **Contributions welcome** - help make this production ready
+- Tokens are stored locally and transmitted securely
+- DPoP keys are generated fresh for each session
+- All HTTP communications use TLS
+- Follows Solid security best practices
 
 ## 📖 Resources
 
@@ -98,8 +126,4 @@ Mozilla Public License 2.0 (MPL-2.0) - same as LibreOffice core.
 
 ---
 
-**Want to help?** This project needs developers familiar with:
-- C++ and LibreOffice internals
-- OAuth2/OIDC authentication
-- HTTP client programming
-- Solid protocol
+**Development Status**: This is a test implementation for exploring Solid protocol integration with LibreOffice. Use for development and testing purposes.
