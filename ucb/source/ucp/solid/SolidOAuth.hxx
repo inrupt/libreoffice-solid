@@ -14,8 +14,12 @@
 #include <com/sun/star/uno/XComponentContext.hpp>
 #include <com/sun/star/task/XInteractionHandler.hpp>
 #include <vector>
+#include <ctime>
 
-namespace solid_ucp {
+using rtl::OUString;
+namespace css = com::sun::star;
+
+namespace solid { namespace libreoffice {
 
 struct SolidOAuthTokens {
     OUString access_token;
@@ -98,6 +102,7 @@ public:
     void setLastError(const OUString& error) { m_sLastError = error; }
 };
 
-} // namespace solid_ucp
+} // namespace libreoffice
+} // namespace solid
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

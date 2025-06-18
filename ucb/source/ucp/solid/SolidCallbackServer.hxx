@@ -17,7 +17,7 @@
 
 using namespace rtl;
 
-namespace solid_ucp
+namespace solid { namespace libreoffice
 {
 
 /**
@@ -77,4 +77,5 @@ private:
     sal_uInt16 findAvailablePort();
 };
 
-} // namespace solid_ucp
+} // namespace libreoffice
+} // namespace solid

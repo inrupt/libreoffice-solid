@@ -17,8 +17,8 @@
 #include <com/sun/star/ucb/IllegalIdentifierException.hpp>
 #include <rtl/ref.hxx>
 #include <rtl/ustrbuf.hxx>
+#include <rtl/ustring.hxx>
 #include <salhelper/simplereferenceobject.hxx>
-#include <tools/urlobj.hxx>
 #include <sal/log.hxx>
 
 #include "solidprovider.hxx"
@@ -27,7 +27,8 @@
 #include "SolidSessionFactory.hxx"
 
 using namespace com::sun::star;
-using namespace solid_ucp;
+using namespace solid::libreoffice;
+using rtl::OUString;
 
 
 // ContentProvider Implementation.
@@ -171,7 +172,7 @@ ContentProvider::queryContent(
     if ( bNewId && !xContent->exchangeIdentity( xCanonicId ) )
         throw ucb::IllegalIdentifierException();
 
-    return xContent;
+    return uno::Reference<ucb::XContent>(xContent.get());
 }
 
 bool ContentProvider::getProperty( const OUString & rPropName, beans::Property & rProp )
@@ -186,7 +187,9 @@ extern "C" SAL_DLLPUBLIC_EXPORT css::uno::XInterface*
 ucb_solid_ContentProvider_get_implementation(
     css::uno::XComponentContext* context , css::uno::Sequence<css::uno::Any> const&)
 {
-    return cppu::acquire(new solid_ucp::ContentProvider(context));
+    css::uno::Reference<css::uno::XComponentContext> xContext(context);
+    rtl::Reference<solid::libreoffice::ContentProvider> xProvider = new solid::libreoffice::ContentProvider(xContext);
+    return static_cast<css::uno::XInterface*>(xProvider.get());
 }
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

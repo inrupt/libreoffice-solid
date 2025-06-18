@@ -26,7 +26,7 @@
 
 using namespace std::chrono_literals;
 
-namespace solid_ucp
+namespace solid { namespace libreoffice
 {
 
 SolidCallbackServer::SolidCallbackServer()
@@ -271,26 +271,26 @@ OUString SolidCallbackServer::extractParameterValue(const OString& request, cons
 
 OUString SolidCallbackServer::generateSuccessPage()
 {
-    return OUString("<!DOCTYPE html>"
+    return OUString::createFromAscii("<!DOCTYPE html>"
            "<html><head><title>Authentication Successful</title>"
            "<style>body{font-family:Arial,sans-serif;text-align:center;padding:50px;}"
            ".success{color:green;font-size:24px;margin-bottom:20px;}</style></head>"
            "<body><div class='success'>Authentication Successful!</div>"
            "<p>You have successfully authenticated with your Solid pod.</p>"
            "<p>You can now close this window and return to LibreOffice.</p>"
-           "</body></html>", RTL_TEXTENCODING_UTF8);
+           "</body></html>");
 }
 
 OUString SolidCallbackServer::generateErrorPage(const OUString& error)
 {
-    return OUString("<!DOCTYPE html>"
+    return OUString::createFromAscii("<!DOCTYPE html>"
            "<html><head><title>Authentication Error</title>"
            "<style>body{font-family:Arial,sans-serif;text-align:center;padding:50px;}"
            ".error{color:red;font-size:24px;margin-bottom:20px;}</style></head>"
            "<body><div class='error'>Authentication Failed</div>"
-           "<p>", RTL_TEXTENCODING_UTF8) + error + OUString("</p>"
+           "<p>") + error + OUString::createFromAscii("</p>"
            "<p>Please try again or contact support if the problem persists.</p>"
-           "</body></html>", RTL_TEXTENCODING_UTF8);
+           "</body></html>");
 }
 
 sal_uInt16 SolidCallbackServer::findAvailablePort()
@@ -344,4 +344,5 @@ OUString SolidCallbackServer::generateState()
     return OStringToOUString(stateBuffer.makeStringAndClear(), RTL_TEXTENCODING_ASCII_US);
 }
 
-} // namespace solid_ucp
+} // namespace libreoffice
+} // namespace solid

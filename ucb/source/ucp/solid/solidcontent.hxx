@@ -9,14 +9,18 @@
 
 #pragma once
 
-#include <ucbhelper/contenthelper.hxx>
+#include <com/sun/star/ucb/XContent.hpp>
+#include <com/sun/star/ucb/XContentIdentifier.hpp>
+#include <com/sun/star/lang/XServiceInfo.hpp>
 #include <com/sun/star/io/XInputStream.hpp>
+#include <cppuhelper/implbase2.hxx>
+#include <rtl/ustring.hxx>
 
-namespace solid_ucp {
+namespace solid { namespace libreoffice {
 
 class ContentProvider;
 
-class Content : public ::ucbhelper::ContentImplHelper
+class Content : public cppu::WeakImplHelper2<css::ucb::XContent, css::lang::XServiceInfo>
 {
 private:
     rtl::Reference<ContentProvider> m_xProvider;

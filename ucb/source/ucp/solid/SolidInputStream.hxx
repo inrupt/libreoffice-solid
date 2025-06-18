@@ -9,18 +9,23 @@
 
 #pragma once
 
-#include <cppuhelper/implbase.hxx>
+#include <rtl/string.hxx>
+#include <rtl/ustring.hxx>
 #include <com/sun/star/io/XInputStream.hpp>
 #include <com/sun/star/io/XSeekable.hpp>
-#include <rtl/string.hxx>
+#include <cppuhelper/implbase2.hxx>
 
-namespace solid_ucp
+using rtl::OUString;
+using rtl::OString;
+namespace css = com::sun::star;
+
+namespace solid { namespace libreoffice
 {
 
 /**
  * Simple input stream implementation for Solid HTTP responses
  */
-class SolidInputStream : public cppu::WeakImplHelper<css::io::XInputStream, css::io::XSeekable>
+class SolidInputStream : public cppu::WeakImplHelper2< css::io::XInputStream, css::io::XSeekable >
 {
 private:
     css::uno::Sequence<sal_Int8> m_aData;
@@ -46,4 +51,5 @@ public:
     virtual sal_Int64 SAL_CALL getLength() override;
 };
 
-} // namespace solid_ucp
+} // namespace libreoffice
+} // namespace solid

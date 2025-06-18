@@ -15,43 +15,43 @@
 
 #include <rtl/ref.hxx>
 #include <com/sun/star/beans/Property.hpp>
-#include <ucbhelper/providerhelper.hxx>
+#include <com/sun/star/ucb/XContentProvider.hpp>
+#include <com/sun/star/lang/XServiceInfo.hpp>
+#include <com/sun/star/lang/XInitialization.hpp>
+#include <cppuhelper/implbase3.hxx>
 #include "SolidSessionFactory.hxx"
 
-namespace solid_ucp {
+namespace solid { namespace libreoffice {
 
 // UNO service name for the provider. This name will be used by the UCB to
 // create instances of the provider.
-inline constexpr OUString SOLID_CONTENT_PROVIDER_SERVICE_NAME = u"com.sun.star.ucb.SolidContentProvider"_ustr;
+#define SOLID_CONTENT_PROVIDER_SERVICE_NAME "com.sun.star.ucb.SolidContentProvider"
 
 // URL scheme. This is the scheme the provider will be able to create
 // contents for. The UCB will select the provider ( i.e. in order to create
 // contents ) according to this scheme.
-#define SOLID_URL_SCHEME              u"solid"
-#define SOLIDS_URL_SCHEME             u"solids"
+#define SOLID_URL_SCHEME              "solid"
+#define SOLIDS_URL_SCHEME             "solids"
 
-inline constexpr OUString SOLID_CONTENT_TYPE = u"application/" SOLID_URL_SCHEME "-content"_ustr;
-inline constexpr OUString SOLID_COLLECTION_TYPE = u"application/" SOLID_URL_SCHEME "-collection"_ustr;
+#define SOLID_CONTENT_TYPE            "application/solid-content"
+#define SOLID_COLLECTION_TYPE         "application/solid-collection"
 
-class ContentProvider : public ::ucbhelper::ContentProviderImplHelper
+class ContentProvider : public cppu::WeakImplHelper3<
+    css::ucb::XContentProvider,
+    css::lang::XServiceInfo,
+    css::lang::XInitialization>
 {
     rtl::Reference< SolidSessionFactory > m_xSolidSessionFactory;
     // Property map will be initialized dynamically when needed
+
+    css::uno::Reference<css::uno::XComponentContext> m_xContext;
 
 public:
     explicit ContentProvider( const css::uno::Reference< css::uno::XComponentContext >& rContext );
     virtual ~ContentProvider() override;
 
-    // XInterface
-    virtual css::uno::Any SAL_CALL queryInterface( const css::uno::Type & rType ) override;
-    virtual void SAL_CALL acquire()
-        noexcept override;
-    virtual void SAL_CALL release()
-        noexcept override;
-
-    // XTypeProvider
-    virtual css::uno::Sequence< sal_Int8 > SAL_CALL getImplementationId() override;
-    virtual css::uno::Sequence< css::uno::Type > SAL_CALL getTypes() override;
+    // XInitialization
+    virtual void SAL_CALL initialize( const css::uno::Sequence< css::uno::Any >& aArguments ) override;
 
     // XServiceInfo
     virtual OUString SAL_CALL getImplementationName() override;

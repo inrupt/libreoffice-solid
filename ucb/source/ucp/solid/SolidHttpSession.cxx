@@ -10,9 +10,7 @@
 #include "SolidHttpSession.hxx"
 #include "SolidInputStream.hxx"
 #include "SolidOAuth.hxx"
-#include <tools/urlobj.hxx>
 #include <rtl/uri.hxx>
-#include <comphelper/processfactory.hxx>
 #include <com/sun/star/system/SystemShellExecute.hpp>
 #include <com/sun/star/system/SystemShellExecuteFlags.hpp>
 #include <sal/log.hxx>
@@ -23,7 +21,7 @@
 
 using namespace com::sun::star;
 
-namespace solid_ucp
+namespace solid { namespace libreoffice
 {
 
 SolidHttpSession::SolidHttpSession(const uno::Reference<uno::XComponentContext>& xContext)
@@ -86,8 +84,16 @@ bool SolidHttpSession::discoverOIDCIssuer(const OUString& rPodUrl, OUString& rIs
         }
         
         // For other pods, try standard discovery
-        INetURLObject aUrl(rPodUrl);
-        OUString sHost = aUrl.GetHost();
+        // Simple URL parsing - extract host from rPodUrl
+        OUString sHost;
+        sal_Int32 nSchemeEnd = rPodUrl.indexOf("://");
+        if (nSchemeEnd > 0)
+        {
+            sal_Int32 nHostStart = nSchemeEnd + 3;
+            sal_Int32 nHostEnd = rPodUrl.indexOf("/", nHostStart);
+            if (nHostEnd == -1) nHostEnd = rPodUrl.getLength();
+            sHost = rPodUrl.copy(nHostStart, nHostEnd - nHostStart);
+        }
         
         // Common patterns for Solid OIDC issuers (following NextFM)
         if (sHost.endsWith(".solidcommunity.net"))
@@ -101,8 +107,15 @@ bool SolidHttpSession::discoverOIDCIssuer(const OUString& rPodUrl, OUString& rIs
             return true;
         }
         
-        // Default: assume issuer is at pod domain root
-        rIssuer = aUrl.GetURLNoPass(INetURLObject::DecodeMechanism::NONE);
+        // Default: assume issuer is at pod domain root with https
+        if (sHost.isEmpty())
+        {
+            rIssuer = rPodUrl;
+        }
+        else
+        {
+            rIssuer = "https://" + sHost + "/";
+        }
         return true;
     }
     catch (...)
@@ -285,8 +298,16 @@ OUString SolidHttpSession::getValidStorageBaseUrl()
 {
     if (!m_sIssuer.isEmpty())
     {
-        INetURLObject aUrl(m_sIssuer);
-        OUString sDomain = aUrl.GetHost();
+        // Extract domain from issuer URL
+        OUString sDomain;
+        sal_Int32 nSchemeEnd = m_sIssuer.indexOf("://");
+        if (nSchemeEnd > 0)
+        {
+            sal_Int32 nHostStart = nSchemeEnd + 3;
+            sal_Int32 nHostEnd = m_sIssuer.indexOf("/", nHostStart);
+            if (nHostEnd == -1) nHostEnd = m_sIssuer.getLength();
+            sDomain = m_sIssuer.copy(nHostStart, nHostEnd - nHostStart);
+        }
         
         // First replace openid. (if it exists) - NextFM pattern
         OUString sStorageDomain = sDomain.replaceAll("openid.", "");
@@ -313,9 +334,18 @@ OUString SolidHttpSession::getProvisionBaseUrl()
 // Utility methods
 OUString SolidHttpSession::resolveUrl(const OUString& rBaseUrl, const OUString& rPath)
 {
-    INetURLObject aBase(rBaseUrl);
-    aBase.insertName(rPath);
-    return aBase.GetMainURL(INetURLObject::DecodeMechanism::NONE);
+    // Simple URL path joining
+    OUString sResult = rBaseUrl;
+    if (!sResult.endsWith("/") && !rPath.startsWith("/"))
+    {
+        sResult += "/";
+    }
+    else if (sResult.endsWith("/") && rPath.startsWith("/"))
+    {
+        sResult = sResult.copy(0, sResult.getLength() - 1);
+    }
+    sResult += rPath;
+    return sResult;
 }
 
 // HTTP response data structure
@@ -548,9 +578,16 @@ bool SolidHttpSession::isValidEndSessionUrl(const OUString& rUrl)
 {
     try
     {
-        INetURLObject aUrl(rUrl);
-        return aUrl.GetProtocol() == INetProtocol::Https && 
-               isValidInruptDomain(aUrl.GetHost());
+        // Simple HTTPS validation and extract host
+        if (!rUrl.startsWith("https://"))
+            return false;
+            
+        sal_Int32 nHostStart = 8; // after "https://"
+        sal_Int32 nHostEnd = rUrl.indexOf("/", nHostStart);
+        if (nHostEnd == -1) nHostEnd = rUrl.getLength();
+        OUString sHost = rUrl.copy(nHostStart, nHostEnd - nHostStart);
+        
+        return isValidInruptDomain(sHost);
     }
     catch (...)
     {
@@ -564,4 +601,5 @@ bool SolidHttpSession::isValidDomain(const OUString& rHostname)
     return rHostname.indexOf('.') != -1;
 }
 
-} // namespace solid_ucp
+} // namespace libreoffice
+} // namespace solid

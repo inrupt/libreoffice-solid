@@ -15,6 +15,9 @@
 #include <vector>
 #include <rtl/ustring.hxx>
 #include <rtl/ref.hxx>
+
+using rtl::OUString;
+namespace css = com::sun::star;
 #include <salhelper/simplereferenceobject.hxx>
 #include <com/sun/star/io/XInputStream.hpp>
 #include <com/sun/star/io/XOutputStream.hpp>
@@ -31,7 +34,7 @@ namespace com::sun::star::ucb {
     struct Lock;
 }
 
-namespace solid_ucp {
+namespace solid { namespace libreoffice {
 
 class SolidSession; // Forward declaration
 
@@ -198,6 +201,7 @@ private:
     void Init();
 };
 
-} // namespace solid_ucp
+} // namespace libreoffice
+} // namespace solid
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

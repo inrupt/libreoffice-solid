@@ -16,7 +16,7 @@ using namespace css;
 using namespace css::uno;
 using namespace css::io;
 
-namespace solid_ucp
+namespace solid { namespace libreoffice
 {
 
 SolidInputStream::SolidInputStream(const OString& data)
@@ -93,4 +93,5 @@ sal_Int64 SAL_CALL SolidInputStream::getLength()
     return m_aData.getLength();
 }
 
-} // namespace solid_ucp
+} // namespace libreoffice
+} // namespace solid

@@ -21,18 +21,19 @@ CXX_SOURCES = $(wildcard $(SRC_DIR)/*.cxx)
 HXX_SOURCES = $(wildcard $(SRC_DIR)/*.hxx)
 
 # LibreOffice SDK configuration
-LO_HEADERS_HOME = /home/davi/code/libreoffice-headers
+SDK_HOME = /usr/lib/libreoffice/sdk
 LO_LIB_HOME = /usr/lib/libreoffice/program
 
 # Compiler settings
 CXX = g++
 CXXFLAGS = -fPIC -Wall -Wextra -std=c++17 -O2 -DLINUX -DUNX -DCPPU_ENV=gcc3
-INCLUDES = -I$(LO_HEADERS_HOME)/include \
-           -I$(LO_HEADERS_HOME)/config_host \
+INCLUDES = -I$(SDK_HOME)/include \
+           -I/usr/include/libreoffice \
            -I$(SRC_DIR) \
            $(shell pkg-config --cflags libcurl openssl)
 
 LIBS = -shared \
+       -L$(SDK_HOME)/lib \
        -L$(LO_LIB_HOME) \
        $(shell pkg-config --libs libcurl openssl) \
        -luno_sal -luno_cppu -luno_cppuhelpergcc3

@@ -13,11 +13,14 @@
 
 #include <rtl/ref.hxx>
 #include <rtl/ustring.hxx>
+
+using rtl::OUString;
+namespace css = com::sun::star;
 #include <salhelper/simplereferenceobject.hxx>
 #include <com/sun/star/uno/XComponentContext.hpp>
 #include <com/sun/star/uno/Reference.hxx>
 
-namespace solid_ucp
+namespace solid { namespace libreoffice
 {
     class SolidSession;
 
@@ -32,6 +35,7 @@ namespace solid_ucp
             const css::uno::Reference<css::uno::XComponentContext>& rxContext);
     };
 
-} // namespace solid_ucp
+} // namespace libreoffice
+} // namespace solid
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

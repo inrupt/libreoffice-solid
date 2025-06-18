@@ -11,13 +11,14 @@
 #include "SolidCallbackServer.hxx"
 #include <sal/log.hxx>
 #include <rtl/digest.h>
-#include <comphelper/base64.hxx>
 #include <rtl/random.h>
 #include <osl/process.h>
-#include <tools/urlobj.hxx>
 #include <curl/curl.h>
 #include <rtl/strbuf.hxx>
 #include <rtl/ustrbuf.hxx>
+#include <openssl/bio.h>
+#include <openssl/evp.h>
+#include <openssl/sha.h>
 #include <ctime>
 #include <memory>
 #include <sstream>
@@ -38,7 +39,7 @@
 
 using namespace com::sun::star;
 
-namespace solid_ucp {
+namespace solid { namespace libreoffice {
 
 namespace {
     // PodSpaces OAuth2 configuration (following NextFM patterns)
@@ -132,13 +133,26 @@ OUString SolidOAuthClient::generateCodeChallenge(const OUString& verifier) const
     // In production, this should hash with SHA256 and base64url encode
     OString verifierUtf8 = OUStringToOString(verifier, RTL_TEXTENCODING_UTF8);
     
-    // For now, return a simple base64 encoded version
-    rtl::OUStringBuffer base64Buffer;
-    css::uno::Sequence<sal_Int8> verifierSeq(reinterpret_cast<const sal_Int8*>(verifierUtf8.getStr()), verifierUtf8.getLength());
-    comphelper::Base64::encode(base64Buffer, verifierSeq);
+    // Proper SHA256 + Base64URL encoding for PKCE
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256(reinterpret_cast<const unsigned char*>(verifierUtf8.getStr()), verifierUtf8.getLength(), hash);
+    
+    // Base64 encode using OpenSSL
+    BIO *bio = BIO_new(BIO_s_mem());
+    BIO *b64 = BIO_new(BIO_f_base64());
+    BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
+    bio = BIO_push(b64, bio);
+    
+    BIO_write(bio, hash, SHA256_DIGEST_LENGTH);
+    BIO_flush(bio);
+    
+    char *base64_data;
+    long base64_len = BIO_get_mem_data(bio, &base64_data);
+    std::string base64_str(base64_data, base64_len);
+    BIO_free_all(bio);
     
     // Convert to URL-safe Base64 (replace +/= with -_)
-    OUString base64 = base64Buffer.makeStringAndClear();
+    OUString base64 = OUString::createFromAscii(base64_str.c_str());
     OUString urlSafeBase64 = base64.replace('+', '-').replace('/', '_');
     sal_Int32 padPos = urlSafeBase64.indexOf('=');
     if (padPos != -1) urlSafeBase64 = urlSafeBase64.copy(0, padPos);
@@ -150,8 +164,11 @@ bool SolidOAuthClient::discoverOIDCConfiguration(const OUString& podUrl, OUStrin
     OUString& authEndpoint, OUString& tokenEndpoint) const {
     
     // Construct OIDC discovery URL following Solid specification
-    INetURLObject podUrlObj(podUrl);
-    OUString discoveryUrl = podUrlObj.GetURLNoPass() + ".well-known/openid-configuration";
+    // Build discovery URL - ensure it ends with slash before appending path
+    OUString discoveryUrl = podUrl;
+    if (!discoveryUrl.endsWith("/"))
+        discoveryUrl += "/";
+    discoveryUrl += ".well-known/openid-configuration";
     
     CURL* curl = curl_easy_init();
     if (!curl) return false;
@@ -613,11 +630,14 @@ OUString SolidOAuthClient::generateDPoPToken(const OUString& httpMethod, const O
     sal_Int64 timestamp = std::time(nullptr);
     
     // Clean URL (remove query parameters and fragments per Inrupt spec)
-    INetURLObject urlObj(url);
-    // Clear query and fragment parts
-    urlObj.SetParam(OUString()); // Remove query parameters
-    urlObj.SetMark(OUString());  // Remove fragment
-    OString cleanUrl = OUStringToOString(urlObj.GetMainURL(INetURLObject::DecodeMechanism::NONE), RTL_TEXTENCODING_UTF8);
+    OUString cleanUrlStr = url;
+    sal_Int32 queryPos = cleanUrlStr.indexOf('?');
+    if (queryPos != -1)
+        cleanUrlStr = cleanUrlStr.copy(0, queryPos);
+    sal_Int32 fragmentPos = cleanUrlStr.indexOf('#');
+    if (fragmentPos != -1)
+        cleanUrlStr = cleanUrlStr.copy(0, fragmentPos);
+    OString cleanUrl = OUStringToOString(cleanUrlStr, RTL_TEXTENCODING_UTF8);
     OString method = OUStringToOString(httpMethod, RTL_TEXTENCODING_UTF8);
     OString jtiStr = OUStringToOString(jti, RTL_TEXTENCODING_UTF8);
     OString jwkStr = OUStringToOString(m_tokens.dpop_public_key_jwk, RTL_TEXTENCODING_UTF8);
@@ -812,6 +832,7 @@ void SolidOAuthClient::clearStoredTokens() {
     clearTokens();
 }
 
-} // namespace solid_ucp
+} // namespace libreoffice
+} // namespace solid
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

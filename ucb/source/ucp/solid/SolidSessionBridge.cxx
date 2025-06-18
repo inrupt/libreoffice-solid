@@ -10,14 +10,11 @@
 #include "SolidSession.hxx"
 #include "SolidHttpSession.hxx"
 #include <com/sun/star/io/XSeekable.hpp>
-#include <comphelper/seqstream.hxx>
-#include <tools/stream.hxx>
-#include <tools/urlobj.hxx>
 #include <sal/log.hxx>
 
 using namespace com::sun::star;
 
-namespace solid_ucp
+namespace solid { namespace libreoffice
 {
 
 // SolidSession Implementation
@@ -211,4 +208,5 @@ void SolidSession::HEAD(SolidRequestEnvironment& rEnv)
     }
 }
 
-} // namespace solid_ucp
+} // namespace libreoffice
+} // namespace solid

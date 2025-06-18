@@ -20,7 +20,10 @@
 #include "SolidOAuth.hxx"
 #include <memory>
 
-namespace solid_ucp
+using rtl::OUString;
+namespace css = com::sun::star;
+
+namespace solid { namespace libreoffice
 {
 
 /**
@@ -92,4 +95,5 @@ private:
     bool isValidDomain(const OUString& rHostname);
 };
 
-} // namespace solid_ucp
+} // namespace libreoffice
+} // namespace solid
