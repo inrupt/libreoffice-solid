@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest:manifest xmlns:manifest="http://openoffice.org/2001/manifest">
+  <manifest:file-entry manifest:media-type="application/vnd.sun.star.configuration-data"
+                       manifest:full-path="SolidProviderConfiguration.xcu"/>
+  <manifest:file-entry manifest:media-type="application/vnd.sun.star.uno-component;type=native;platform=Linux_x86"
+                       manifest:full-path="Linux_x86/ucpsolid.uno.so"/>
+  <manifest:file-entry manifest:media-type="application/vnd.sun.star.uno-component;type=native;platform=Linux_x86_64"
+                       manifest:full-path="Linux_x86_64/ucpsolid.uno.so"/>
+  <manifest:file-entry manifest:media-type="application/vnd.sun.star.uno-component;type=native;platform=Windows"
+                       manifest:full-path="Windows/ucpsolid.uno.dll"/>
+  <manifest:file-entry manifest:media-type="application/vnd.sun.star.uno-component;type=native;platform=MacOSX_x86"
+                       manifest:full-path="MacOSX_x86/ucpsolid.uno.dylib"/>
+  <manifest:file-entry manifest:media-type="application/vnd.sun.star.package-bundle-description"
+		       manifest:full-path="package-description-en.txt"/>
+</manifest:manifest>

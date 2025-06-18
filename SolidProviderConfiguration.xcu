@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<oor:component-data oor:name="Configuration"
+		    oor:package="org.openoffice.ucb"
+		    xmlns:oor="http://openoffice.org/2001/registry"
+		    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+		    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <node oor:name="ContentProviders">
+        <node oor:name="Local">
+            <node oor:name="SecondaryKeys">
+                <node oor:name="Office">
+                    <node oor:name="ProviderData">
+                        <!-- Solid pod provider for Inrupt PodSpaces -->
+                        <node oor:name="SolidProvider1" oor:op="replace">
+                            <prop oor:name="ServiceName">
+                                <value>com.sun.star.ucb.SolidContentProvider</value>
+                            </prop>
+                            <prop oor:name="URLTemplate">
+                                <value>https://storage\.inrupt\.com/.*</value>
+                            </prop>
+                            <prop oor:name="Arguments">
+                                <value/>
+                            </prop>
+                        </node>
+                        <node oor:name="SolidProvider2" oor:op="replace">
+                            <prop oor:name="ServiceName">
+                                <value>com.sun.star.ucb.SolidContentProvider</value>
+                            </prop>
+                            <prop oor:name="URLTemplate">
+                                <value>solid</value>
+                            </prop>
+                            <prop oor:name="Arguments">
+                                <value/>
+                            </prop>
+                        </node>
+                    </node>
+                </node>
+            </node>
+        </node>
+    </node>
+
+</oor:component-data>
