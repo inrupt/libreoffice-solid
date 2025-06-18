@@ -271,26 +271,26 @@ OUString SolidCallbackServer::extractParameterValue(const OString& request, cons
 
 OUString SolidCallbackServer::generateSuccessPage()
 {
-    return u"<!DOCTYPE html>"
+    return OUString("<!DOCTYPE html>"
            "<html><head><title>Authentication Successful</title>"
            "<style>body{font-family:Arial,sans-serif;text-align:center;padding:50px;}"
            ".success{color:green;font-size:24px;margin-bottom:20px;}</style></head>"
-           "<body><div class='success'>✓ Authentication Successful!</div>"
+           "<body><div class='success'>Authentication Successful!</div>"
            "<p>You have successfully authenticated with your Solid pod.</p>"
            "<p>You can now close this window and return to LibreOffice.</p>"
-           "</body></html>"_ustr;
+           "</body></html>", RTL_TEXTENCODING_UTF8);
 }
 
 OUString SolidCallbackServer::generateErrorPage(const OUString& error)
 {
-    return u"<!DOCTYPE html>"
+    return OUString("<!DOCTYPE html>"
            "<html><head><title>Authentication Error</title>"
            "<style>body{font-family:Arial,sans-serif;text-align:center;padding:50px;}"
            ".error{color:red;font-size:24px;margin-bottom:20px;}</style></head>"
-           "<body><div class='error'>✗ Authentication Failed</div>"
-           "<p>" + error + "</p>"
+           "<body><div class='error'>Authentication Failed</div>"
+           "<p>", RTL_TEXTENCODING_UTF8) + error + OUString("</p>"
            "<p>Please try again or contact support if the problem persists.</p>"
-           "</body></html>";
+           "</body></html>", RTL_TEXTENCODING_UTF8);
 }
 
 sal_uInt16 SolidCallbackServer::findAvailablePort()
