@@ -48,8 +48,8 @@ namespace {
     
     // PodSpaces-specific endpoints (not discovered)
     const char* PODSPACES_ISSUER = "https://login.inrupt.com";
-    const char* PODSPACES_AUTH_ENDPOINT = "https://login.inrupt.com/oauth/authorize";
-    const char* PODSPACES_TOKEN_ENDPOINT = "https://login.inrupt.com/oauth/token";
+    const char* PODSPACES_AUTH_ENDPOINT = "https://login.inrupt.com/authorization";
+    const char* PODSPACES_TOKEN_ENDPOINT = "https://login.inrupt.com/token";
     const char* PODSPACES_PROVISION_ENDPOINT = "https://provision.inrupt.com/list";
     
     // CURL callback for writing HTTP response data
