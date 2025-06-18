@@ -1,0 +1,84 @@
+#ifndef INCLUDED_COM_SUN_STAR_UCB_SEARCHCOMMANDARGUMENT_HPP
+#define INCLUDED_COM_SUN_STAR_UCB_SEARCHCOMMANDARGUMENT_HPP
+
+#include "sal/config.h"
+
+#include "com/sun/star/ucb/SearchCommandArgument.hdl"
+
+#include "com/sun/star/beans/Property.hpp"
+#include "com/sun/star/ucb/SearchInfo.hpp"
+#include "com/sun/star/uno/Sequence.hxx"
+#include "com/sun/star/uno/Type.hxx"
+#include "cppu/unotype.hxx"
+#include "rtl/ustring.h"
+#include "rtl/ustring.hxx"
+#include "rtl/instance.hxx"
+#include "sal/types.h"
+#include "typelib/typeclass.h"
+#include "typelib/typedescription.h"
+
+namespace com { namespace sun { namespace star { namespace ucb {
+
+inline SearchCommandArgument::SearchCommandArgument()
+    : Info()
+    , Properties()
+{
+}
+
+inline SearchCommandArgument::SearchCommandArgument(const ::css::ucb::SearchInfo& Info_, const ::css::uno::Sequence< ::css::beans::Property >& Properties_)
+    : Info(Info_)
+    , Properties(Properties_)
+{
+}
+
+
+inline bool operator==(const SearchCommandArgument& the_lhs, const SearchCommandArgument& the_rhs)
+{
+    return the_lhs.Info == the_rhs.Info
+        && the_lhs.Properties == the_rhs.Properties;
+}
+
+inline bool operator!=(const SearchCommandArgument& the_lhs, const SearchCommandArgument& the_rhs)
+{
+return !operator==(the_lhs, the_rhs);
+}
+} } } }
+
+namespace com { namespace sun { namespace star { namespace ucb { namespace detail {
+
+struct theSearchCommandArgumentType : public rtl::StaticWithInit< ::css::uno::Type *, theSearchCommandArgumentType >
+{
+    ::css::uno::Type * operator()() const
+    {
+        ::rtl::OUString the_name( "com.sun.star.ucb.SearchCommandArgument" );
+        ::cppu::UnoType< ::css::ucb::SearchInfo >::get();
+        ::rtl::OUString the_tname0( "com.sun.star.ucb.SearchInfo" );
+        ::rtl::OUString the_name0( "Info" );
+        ::cppu::UnoType< ::cppu::UnoSequenceType< ::css::beans::Property > >::get();
+        ::rtl::OUString the_tname1( "[]com.sun.star.beans.Property" );
+        ::rtl::OUString the_name1( "Properties" );
+        ::typelib_StructMember_Init the_members[] = {
+            { { typelib_TypeClass_STRUCT, the_tname0.pData, the_name0.pData }, false },
+            { { typelib_TypeClass_SEQUENCE, the_tname1.pData, the_name1.pData }, false } };
+        ::typelib_TypeDescription * the_newType = 0;
+        ::typelib_typedescription_newStruct(&the_newType, the_name.pData, 0, 2, the_members);
+        ::typelib_typedescription_register(&the_newType);
+        ::typelib_typedescription_release(the_newType);
+        return new ::css::uno::Type(::css::uno::TypeClass_STRUCT, the_name); // leaked
+    }
+};
+} } } } }
+
+namespace com { namespace sun { namespace star { namespace ucb {
+
+inline ::css::uno::Type const & cppu_detail_getUnoType(SAL_UNUSED_PARAMETER ::css::ucb::SearchCommandArgument const *) {
+    return *detail::theSearchCommandArgumentType::get();
+}
+
+} } } }
+
+SAL_DEPRECATED("use cppu::UnoType") inline ::css::uno::Type const & SAL_CALL getCppuType(SAL_UNUSED_PARAMETER ::css::ucb::SearchCommandArgument const *) {
+    return ::cppu::UnoType< ::css::ucb::SearchCommandArgument >::get();
+}
+
+#endif // INCLUDED_COM_SUN_STAR_UCB_SEARCHCOMMANDARGUMENT_HPP

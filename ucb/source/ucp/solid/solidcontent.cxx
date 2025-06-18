@@ -20,8 +20,7 @@
 #include <com/sun/star/ucb/CommandInfo.hpp>
 #include <com/sun/star/ucb/InsertCommandArgument.hpp>
 #include <com/sun/star/ucb/UnsupportedCommandException.hpp>
-#include <ucbhelper/propertyvalueset.hxx>
-#include <ucbhelper/contentidentifier.hxx>
+#include <com/sun/star/sdbc/XRow.hpp>
 #include <cppuhelper/queryinterface.hxx>
 #include <cppuhelper/typeprovider.hxx>
 #include <osl/mutex.hxx>

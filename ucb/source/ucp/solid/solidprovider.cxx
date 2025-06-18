@@ -8,12 +8,11 @@
  */
 
 #include <memory>
-#include <comphelper/processfactory.hxx>
-#include <ucbhelper/contentidentifier.hxx>
-#include <ucbhelper/macros.hxx>
+#include <com/sun/star/ucb/XContentIdentifier.hpp>
 #include <cppuhelper/queryinterface.hxx>
 #include <cppuhelper/weak.hxx>
 #include <cppuhelper/supportsservice.hxx>
+#include <cppuhelper/implbase1.hxx>
 #include <com/sun/star/ucb/IllegalIdentifierException.hpp>
 #include <rtl/ref.hxx>
 #include <rtl/ustrbuf.hxx>
@@ -30,12 +29,30 @@ using namespace com::sun::star;
 using namespace solid::libreoffice;
 using rtl::OUString;
 
+// Simple ContentIdentifier implementation
+class ContentIdentifier : public cppu::WeakImplHelper1<ucb::XContentIdentifier>
+{
+private:
+    OUString m_sContentId;
+    OUString m_sScheme;
+
+public:
+    ContentIdentifier(const OUString& ContentId) : m_sContentId(ContentId)
+    {
+        sal_Int32 nSchemeEnd = ContentId.indexOf(':');
+        if (nSchemeEnd != -1)
+            m_sScheme = ContentId.copy(0, nSchemeEnd);
+    }
+
+    virtual OUString SAL_CALL getContentIdentifier() override { return m_sContentId; }
+    virtual OUString SAL_CALL getContentProviderScheme() override { return m_sScheme; }
+};
 
 // ContentProvider Implementation.
 
 ContentProvider::ContentProvider(
     const uno::Reference< uno::XComponentContext >& rContext )
-: ::ucbhelper::ContentProviderImplHelper( rContext )
+: m_xContext(rContext)
 {
     SAL_WARN("ucb.ucp.solid", "=== SolidContentProvider CONSTRUCTOR START ===");
     // Initialize session factory later in queryContent to avoid constructor issues
@@ -124,8 +141,15 @@ ContentProvider::queryContent(
     if (aScheme == "https" || aScheme == "http")
     {
         // Check if this is a Solid pod URL based on domain
-        INetURLObject aURL(Identifier->getContentIdentifier());
-        OUString sHost = aURL.GetHost();
+        OUString aURL = Identifier->getContentIdentifier();
+        OUString sHost;
+        sal_Int32 nSchemeEnd = aURL.indexOf("://");
+        if (nSchemeEnd != -1) {
+            sal_Int32 nHostStart = nSchemeEnd + 3;
+            sal_Int32 nHostEnd = aURL.indexOf("/", nHostStart);
+            if (nHostEnd == -1) nHostEnd = aURL.getLength();
+            sHost = aURL.copy(nHostStart, nHostEnd - nHostStart);
+        }
         
         SAL_WARN("ucb.ucp.solid", "SolidContentProvider::queryContent - URL: " 
                  << Identifier->getContentIdentifier() << " Host: " << sHost);
@@ -154,7 +178,7 @@ ContentProvider::queryContent(
 
     if ( aURL != Identifier->getContentIdentifier() )
     {
-        xCanonicId = new ::ucbhelper::ContentIdentifier( aURL );
+        xCanonicId = new ContentIdentifier( aURL );
         bNewId = true;
     }
     else
