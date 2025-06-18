@@ -21,19 +21,18 @@ CXX_SOURCES = $(wildcard $(SRC_DIR)/*.cxx)
 HXX_SOURCES = $(wildcard $(SRC_DIR)/*.hxx)
 
 # LibreOffice SDK configuration
-# Note: These paths should be adjusted based on your LibreOffice installation
-LO_SDK_HOME ?= /usr/lib/libreoffice/sdk
-LO_HOME ?= /usr/lib/libreoffice
+LO_SDK_INCLUDE = /usr/lib/libreoffice/sdk/include
+LO_LIB_HOME = /usr/lib/libreoffice/program
 
 # Compiler settings
 CXX = g++
-CXXFLAGS = -fPIC -Wall -Wextra -std=c++17 -O2
-INCLUDES = -I$(LO_SDK_HOME)/include \
+CXXFLAGS = -fPIC -Wall -Wextra -std=c++17 -O2 -DLINUX -DUNX -DCPPU_ENV=gcc3
+INCLUDES = -I$(LO_SDK_INCLUDE) \
            -I$(SRC_DIR) \
-           -I$(shell pkg-config --cflags-only-I libcurl openssl)
+           $(shell pkg-config --cflags libcurl openssl)
 
 LIBS = -shared \
-       -L$(LO_HOME)/program \
+       -L$(LO_LIB_HOME) \
        $(shell pkg-config --libs libcurl openssl) \
        -luno_sal -luno_cppu -luno_cppuhelpergcc3
 
@@ -58,7 +57,9 @@ extension-files:
 
 # Build Linux x86_64 binary
 build-linux: $(EXTENSION_DIR)
+	@echo "Building Solid UCP with DPoP authentication..."
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(CXX_SOURCES) $(LIBS) -o $(LINUX_X64_DIR)/ucpsolid.uno.so
+	@echo "Built ucpsolid.uno.so with your DPoP implementation"
 
 # Note: Cross-compilation for other platforms would require appropriate toolchains
 build-windows:
