@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component loader="com.sun.star.loader.SharedLibrary" environment="@CPPU_ENV@"
+    xmlns="http://openoffice.org/2010/uno-components">
+  <implementation name="com.sun.star.comp.SolidAuthTest"
+      constructor="solid_SolidAuthTest_get_implementation">
+    <service name="com.sun.star.SolidAuthTest"/>
+  </implementation>
+</component>
