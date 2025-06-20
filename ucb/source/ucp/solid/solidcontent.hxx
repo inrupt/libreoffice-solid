@@ -9,12 +9,13 @@
 
 #pragma once
 
+#include <rtl/ustring.hxx>
 #include <com/sun/star/ucb/XContent.hpp>
 #include <com/sun/star/ucb/XContentIdentifier.hpp>
 #include <com/sun/star/lang/XServiceInfo.hpp>
 #include <com/sun/star/uno/XComponentContext.hpp>
+#include <cppuhelper/implbase_ex.hxx>
 #include <cppuhelper/implbase2.hxx>
-#include <rtl/ustring.hxx>
 
 using rtl::OUString;
 
@@ -56,6 +57,7 @@ public:
     bool exchangeIdentity(const css::uno::Reference<css::ucb::XContentIdentifier>& xNewId);
 };
 
-}
+} // namespace libreoffice
+} // namespace solid
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

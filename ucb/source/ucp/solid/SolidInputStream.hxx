@@ -13,6 +13,7 @@
 #include <rtl/ustring.hxx>
 #include <com/sun/star/io/XInputStream.hpp>
 #include <com/sun/star/io/XSeekable.hpp>
+#include <cppuhelper/implbase_ex.hxx>
 #include <cppuhelper/implbase2.hxx>
 
 using rtl::OUString;
@@ -25,7 +26,7 @@ namespace solid { namespace libreoffice
 /**
  * Simple input stream implementation for Solid HTTP responses
  */
-class SolidInputStream : public cppu::WeakImplHelper2< css::io::XInputStream, css::io::XSeekable >
+class SolidInputStream : public cppu::WeakImplHelper2<css::io::XInputStream, css::io::XSeekable>
 {
 private:
     css::uno::Sequence<sal_Int8> m_aData;

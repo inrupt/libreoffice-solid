@@ -77,12 +77,14 @@ css::uno::Sequence<css::uno::Type> SAL_CALL Content::getTypes()
 // XServiceInfo methods
 OUString SAL_CALL Content::getImplementationName()
 {
-    return u"com.sun.star.comp.ucb.SolidContent"_ustr;
+    return OUString("com.sun.star.comp.ucb.SolidContent");
 }
 
 css::uno::Sequence<OUString> SAL_CALL Content::getSupportedServiceNames()
 {
-    return { u"com.sun.star.ucb.SolidContent"_ustr };
+    css::uno::Sequence<OUString> aSeq(1);
+    aSeq[0] = OUString("com.sun.star.ucb.SolidContent");
+    return aSeq;
 }
 
 // XContent methods

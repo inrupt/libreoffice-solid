@@ -69,16 +69,18 @@ See [EXTENSION_BUILD.md](EXTENSION_BUILD.md) for detailed build instructions.
 ### Connecting to Your Solid Pod
 
 1. **Install the extension** (see Installation section above)
-2. **Open or Save a document**:
-   - Go to **File** → **Open** or **Save As**
-   - Enter your pod URL: `https://storage.inrupt.com/YOUR-POD-ID/path/to/file.odt`
-3. **Authenticate**:
+2. **Add Solid Service**:
+   - Go to **File** → **Open Remote Files**
+   - Click **Add Service**
+   - Select **Solid** as service type
+   - Enter your pod URL: `https://storage.inrupt.com/YOUR-POD-ID`
+   - Configure authentication settings
+3. **Access Files**:
+   - Select **Solid** from Remote Files dropdown
    - Browser window opens for OAuth login
    - Sign in to your Inrupt account
    - Grant permissions to LibreOffice
-4. **Access files**:
    - Browse and select files from your pod
-   - Save documents directly to your pod storage
 
 ### Supported URLs
 - `https://storage.inrupt.com/*` - Direct PodSpaces URLs

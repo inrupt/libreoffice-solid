@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface domain="vcl">
+  <object class="GtkDialog" id="SolidConfigDialog">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Configure Solid Pod Service</property>
+    <property name="resizable">True</property>
+    <property name="modal">True</property>
+    <property name="window_position">center-on-parent</property>
+    <property name="default_width">500</property>
+    <property name="default_height">400</property>
+    <property name="type_hint">dialog</property>
+    <child internal-child="vbox">
+      <object class="GtkBox" id="dialog-vbox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">12</property>
+        <property name="margin_left">12</property>
+        <property name="margin_right">12</property>
+        <property name="margin_top">12</property>
+        <property name="margin_bottom">12</property>
+        
+        <!-- Service Name -->
+        <child>
+          <object class="GtkGrid" id="grid1">
+            <property name="can_focus">False</property>
+            <property name="row_spacing">6</property>
+            <property name="column_spacing">12</property>
+            
+            <child>
+              <object class="GtkLabel" id="label_service_name">
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Service Name:</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">0</property>
+              </packing>
+            </child>
+            
+            <child>
+              <object class="GtkEntry" id="entry_service_name">
+                <property name="can_focus">True</property>
+                <property name="text" translatable="yes">My Solid Pod</property>
+                <property name="placeholder_text" translatable="yes">Enter a name for this service</property>
+                <property name="hexpand">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">0</property>
+              </packing>
+            </child>
+            
+            <!-- Pod URL -->
+            <child>
+              <object class="GtkLabel" id="label_pod_url">
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Pod URL:</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">1</property>
+              </packing>
+            </child>
+            
+            <child>
+              <object class="GtkEntry" id="entry_pod_url">
+                <property name="can_focus">True</property>
+                <property name="placeholder_text" translatable="yes">https://storage.inrupt.com/YOUR-POD-ID</property>
+                <property name="hexpand">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">1</property>
+              </packing>
+            </child>
+            
+            <!-- WebID -->
+            <child>
+              <object class="GtkLabel" id="label_webid">
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">WebID (Optional):</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">2</property>
+              </packing>
+            </child>
+            
+            <child>
+              <object class="GtkEntry" id="entry_webid">
+                <property name="can_focus">True</property>
+                <property name="placeholder_text" translatable="yes">https://yourname.inrupt.net/profile/card#me</property>
+                <property name="hexpand">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">2</property>
+              </packing>
+            </child>
+          </object>
+        </child>
+        
+        <!-- Authentication Settings -->
+        <child>
+          <object class="GtkFrame" id="frame_auth">
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Authentication Settings</property>
+            <child>
+              <object class="GtkBox" id="box_auth">
+                <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
+                <property name="spacing">6</property>
+                <property name="margin_left">12</property>
+                <property name="margin_right">12</property>
+                <property name="margin_top">6</property>
+                <property name="margin_bottom">12</property>
+                
+                <child>
+                  <object class="GtkCheckButton" id="check_dpop">
+                    <property name="can_focus">True</property>
+                    <property name="label" translatable="yes">Enable DPoP (Demonstration of Proof-of-Possession)</property>
+                    <property name="active">True</property>
+                  </object>
+                </child>
+                
+                <child>
+                  <object class="GtkCheckButton" id="check_remember">
+                    <property name="can_focus">True</property>
+                    <property name="label" translatable="yes">Remember authentication credentials</property>
+                    <property name="active">True</property>
+                  </object>
+                </child>
+                
+                <child>
+                  <object class="GtkLabel" id="label_auth_info">
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Authentication will be performed using OAuth 2.0 + PKCE.
+A browser window will open for login when you access the pod.</property>
+                    <property name="wrap">True</property>
+                    <property name="xalign">0</property>
+                    <style>
+                      <class name="dim-label"/>
+                    </style>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        
+        <!-- Dialog Buttons -->
+        <child internal-child="action_area">
+          <object class="GtkButtonBox" id="dialog-action_area">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            
+            <child>
+              <object class="GtkButton" id="button_cancel">
+                <property name="label" translatable="yes">Cancel</property>
+                <property name="can_focus">True</property>
+                <property name="can_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            
+            <child>
+              <object class="GtkButton" id="button_test">
+                <property name="label" translatable="yes">Test Connection</property>
+                <property name="can_focus">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            
+            <child>
+              <object class="GtkButton" id="button_ok">
+                <property name="label" translatable="yes">OK</property>
+                <property name="can_focus">True</property>
+                <property name="can_default">True</property>
+                <property name="has_default">True</property>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

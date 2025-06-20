@@ -62,6 +62,14 @@ ContentProvider::~ContentProvider()
 {
 }
 
+// XInitialization methods.
+void SAL_CALL ContentProvider::initialize( const uno::Sequence< uno::Any >& aArguments )
+{
+    // For now, we don't need any initialization arguments
+    // This method is required by the XInitialization interface
+    (void)aArguments;
+}
+
 // XInterface methods.
 void SAL_CALL ContentProvider::acquire()
     noexcept
@@ -105,7 +113,7 @@ uno::Sequence< uno::Type > SAL_CALL ContentProvider::getTypes()
 // XServiceInfo methods.
 OUString SAL_CALL ContentProvider::getImplementationName()
 {
-    return u"com.sun.star.comp.SolidContentProvider"_ustr;
+    return OUString("com.sun.star.comp.SolidContentProvider");
 }
 
 sal_Bool SAL_CALL ContentProvider::supportsService( const OUString& ServiceName )

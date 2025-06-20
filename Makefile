@@ -16,13 +16,15 @@ LINUX_X64_DIR = $(EXTENSION_DIR)/Linux_x86_64
 WINDOWS_DIR = $(EXTENSION_DIR)/Windows
 MACOSX_DIR = $(EXTENSION_DIR)/MacOSX_x86
 
-# Source files - only include essential files for DPoP testing
-CXX_SOURCES = $(SRC_DIR)/SolidAuthTest.cxx \
+# Source files - backend only (UI requires full LibreOffice build environment)
+CXX_SOURCES = $(SRC_DIR)/solidprovider.cxx \
+              $(SRC_DIR)/solidcontent.cxx \
               $(SRC_DIR)/SolidOAuth.cxx \
               $(SRC_DIR)/SolidCallbackServer.cxx \
-              $(SRC_DIR)/SolidInputStream.cxx
+              $(SRC_DIR)/SolidInputStream.cxx \
+              $(SRC_DIR)/SolidSessionFactory.cxx
 
-# LibreOffice SDK configuration
+# LibreOffice SDK configuration - use properly installed SDK
 SDK_HOME = /usr/lib/libreoffice/sdk
 LO_LIB_HOME = /usr/lib/libreoffice/program
 
@@ -30,14 +32,15 @@ LO_LIB_HOME = /usr/lib/libreoffice/program
 CXX = g++
 CXXFLAGS = -fPIC -Wall -Wextra -std=c++17 -O2 -DLINUX -DUNX -DCPPU_ENV=gcc3
 INCLUDES = -I$(SDK_HOME)/include \
-           -I/usr/include/libreoffice \
            -Iinclude \
+           -Iinclude/generated \
            -I$(SRC_DIR) \
            $(shell pkg-config --cflags libcurl openssl)
 
 LIBS = -shared \
        -L$(SDK_HOME)/lib \
        -L$(LO_LIB_HOME) \
+       -Wl,-rpath,$(LO_LIB_HOME) \
        $(shell pkg-config --libs libcurl openssl) \
        -luno_sal -luno_cppu -luno_cppuhelpergcc3
 
@@ -55,15 +58,17 @@ extension-files:
 	mkdir -p $(EXTENSION_DIR)/META-INF $(EXTENSION_DIR)/images
 	cp META-INF/manifest.xml $(EXTENSION_DIR)/META-INF/
 	cp description.xml $(EXTENSION_DIR)/
+	cp SolidProviderConfiguration.xcu $(EXTENSION_DIR)/
+	cp SolidRemoteFilesConfiguration.xcu $(EXTENSION_DIR)/
 	cp package-description-en.txt $(EXTENSION_DIR)/
 	cp -r images/* $(EXTENSION_DIR)/images/ 2>/dev/null || echo "No images directory"
-	cp $(SRC_DIR)/solidauthtest.component $(EXTENSION_DIR)/
+	cp $(SRC_DIR)/ucpsolid.component $(EXTENSION_DIR)/
 
 # Build Linux x86_64 binary
 build-linux: $(EXTENSION_DIR)
 	@echo "Building Solid UCP with DPoP authentication..."
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(CXX_SOURCES) $(LIBS) -o $(LINUX_X64_DIR)/solidauthtest.uno.so
-	@echo "Built solidauthtest.uno.so with DPoP authentication testing"
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(CXX_SOURCES) $(LIBS) -o $(LINUX_X64_DIR)/ucpsolid.uno.so
+	@echo "Built ucpsolid.uno.so with actual ContentProvider"
 
 # Note: Cross-compilation for other platforms would require appropriate toolchains
 build-windows:

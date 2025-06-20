@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface domain="vcl">
+  <object class="GtkDialog" id="SolidBrowserDialog">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Browse Solid Pod</property>
+    <property name="resizable">True</property>
+    <property name="modal">True</property>
+    <property name="window_position">center-on-parent</property>
+    <property name="default_width">700</property>
+    <property name="default_height">500</property>
+    <property name="type_hint">dialog</property>
+    <child internal-child="vbox">
+      <object class="GtkBox" id="dialog-vbox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">6</property>
+        
+        <!-- Toolbar -->
+        <child>
+          <object class="GtkToolbar" id="toolbar">
+            <property name="can_focus">False</property>
+            <property name="toolbar_style">both-horiz</property>
+            <property name="icon_size">2</property>
+            
+            <child>
+              <object class="GtkToolButton" id="button_up">
+                <property name="can_focus">False</property>
+                <property name="tooltip_text" translatable="yes">Go up one level</property>
+                <property name="label" translatable="yes">Up</property>
+                <property name="icon_name">go-up</property>
+              </object>
+            </child>
+            
+            <child>
+              <object class="GtkToolButton" id="button_refresh">
+                <property name="can_focus">False</property>
+                <property name="tooltip_text" translatable="yes">Refresh folder contents</property>
+                <property name="label" translatable="yes">Refresh</property>
+                <property name="icon_name">view-refresh</property>
+              </object>
+            </child>
+            
+            <child>
+              <object class="GtkSeparatorToolItem" id="separator1">
+                <property name="can_focus">False</property>
+              </object>
+            </child>
+            
+            <child>
+              <object class="GtkToolButton" id="button_new_folder">
+                <property name="can_focus">False</property>
+                <property name="tooltip_text" translatable="yes">Create new folder</property>
+                <property name="label" translatable="yes">New Folder</property>
+                <property name="icon_name">folder-new</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        
+        <!-- Location bar -->
+        <child>
+          <object class="GtkBox" id="location_box">
+            <property name="can_focus">False</property>
+            <property name="orientation">horizontal</property>
+            <property name="spacing">6</property>
+            <property name="margin_left">6</property>
+            <property name="margin_right">6</property>
+            
+            <child>
+              <object class="GtkLabel" id="label_location">
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Location:</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            
+            <child>
+              <object class="GtkEntry" id="entry_location">
+                <property name="can_focus">True</property>
+                <property name="placeholder_text" translatable="yes">Enter path or URL</property>
+                <property name="hexpand">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            
+            <child>
+              <object class="GtkButton" id="button_go">
+                <property name="label" translatable="yes">Go</property>
+                <property name="can_focus">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        
+        <!-- Main content area -->
+        <child>
+          <object class="GtkPaned" id="paned_main">
+            <property name="can_focus">True</property>
+            <property name="orientation">horizontal</property>
+            <property name="position">200</property>
+            <property name="margin_left">6</property>
+            <property name="margin_right">6</property>
+            
+            <!-- Folder tree -->
+            <child>
+              <object class="GtkScrolledWindow" id="scroll_tree">
+                <property name="can_focus">True</property>
+                <property name="shadow_type">in</property>
+                <property name="min_content_width">150</property>
+                
+                <child>
+                  <object class="GtkTreeView" id="tree_folders">
+                    <property name="can_focus">True</property>
+                    <property name="headers_visible">False</property>
+                    <property name="enable_tree_lines">True</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="resize">False</property>
+                <property name="shrink">True</property>
+              </packing>
+            </child>
+            
+            <!-- File list -->
+            <child>
+              <object class="GtkScrolledWindow" id="scroll_files">
+                <property name="can_focus">True</property>
+                <property name="shadow_type">in</property>
+                
+                <child>
+                  <object class="GtkTreeView" id="tree_files">
+                    <property name="can_focus">True</property>
+                    <property name="headers_visible">True</property>
+                    <property name="rules_hint">True</property>
+                    <property name="enable_search">True</property>
+                    <property name="search_column">0</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="resize">True</property>
+                <property name="shrink">True</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        
+        <!-- Status bar -->
+        <child>
+          <object class="GtkStatusbar" id="statusbar">
+            <property name="can_focus">False</property>
+            <property name="margin_left">6</property>
+            <property name="margin_right">6</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">3</property>
+          </packing>
+        </child>
+        
+        <!-- Selected file info -->
+        <child>
+          <object class="GtkBox" id="selection_box">
+            <property name="can_focus">False</property>
+            <property name="orientation">horizontal</property>
+            <property name="spacing">6</property>
+            <property name="margin_left">6</property>
+            <property name="margin_right">6</property>
+            <property name="margin_bottom">6</property>
+            
+            <child>
+              <object class="GtkLabel" id="label_filename">
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">File name:</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            
+            <child>
+              <object class="GtkEntry" id="entry_filename">
+                <property name="can_focus">True</property>
+                <property name="hexpand">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">4</property>
+          </packing>
+        </child>
+        
+        <!-- Dialog buttons -->
+        <child internal-child="action_area">
+          <object class="GtkButtonBox" id="dialog-action_area">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <property name="margin_left">6</property>
+            <property name="margin_right">6</property>
+            <property name="margin_bottom">6</property>
+            
+            <child>
+              <object class="GtkButton" id="button_cancel">
+                <property name="label" translatable="yes">Cancel</property>
+                <property name="can_focus">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            
+            <child>
+              <object class="GtkButton" id="button_open">
+                <property name="label" translatable="yes">Open</property>
+                <property name="can_focus">True</property>
+                <property name="can_default">True</property>
+                <property name="has_default">True</property>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

@@ -11,7 +11,7 @@
             <node oor:name="SecondaryKeys">
                 <node oor:name="Office">
                     <node oor:name="ProviderData">
-                        <!-- Solid pod provider for Inrupt PodSpaces -->
+                        <!-- PodSpaces storage provider - must come before WebDAV https provider -->
                         <node oor:name="SolidProvider1" oor:op="replace">
                             <prop oor:name="ServiceName">
                                 <value>com.sun.star.ucb.SolidContentProvider</value>
@@ -23,6 +23,7 @@
                                 <value/>
                             </prop>
                         </node>
+                        <!-- Native solid:// scheme support -->
                         <node oor:name="SolidProvider2" oor:op="replace">
                             <prop oor:name="ServiceName">
                                 <value>com.sun.star.ucb.SolidContentProvider</value>
