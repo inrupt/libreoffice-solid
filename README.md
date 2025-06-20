@@ -1,164 +1,82 @@
-# LibreOffice Solid Protocol Native Integration
+# LibreOffice Solid UCP
 
-Native LibreOffice integration that enables secure document storage on Solid pods. This implementation provides built-in Solid protocol support with DPoP authentication for connecting to Inrupt PodSpaces through LibreOffice's native Remote Files system.
+C++ implementation of a Universal Content Provider (UCP) for LibreOffice that enables native Solid pod integration with DPoP authentication.
 
-## ✅ Current Status
+## What This Is
 
-This implementation provides native Solid protocol integration:
-- ✅ OAuth 2.0 + PKCE + DPoP authentication flow
-- ✅ ECDSA P-256 key generation and JWT signing  
-- ✅ PodSpaces (https://storage.inrupt.com/) integration
-- ✅ Native Remote Files system integration
-- ✅ Universal Content Provider (UCP) implementation
-- ✅ LibreOffice source code integration
+This repo contains the source code for a LibreOffice UCP that provides native Solid protocol support. When integrated into LibreOffice, users can access Solid pods through the standard "File → Open Remote Files" interface.
 
-**Development focus**:
-- Native compilation into LibreOffice core
-- Seamless Remote Files integration
-- Testing with Solid pods and PodSpaces
+## Development Status
 
-## 🎯 Project Goal
+**Working**: Complete C++ DPoP implementation with OAuth 2.0 + PKCE  
+**Integrated**: Successfully integrated into LibreOffice source tree  
+**Testing**: Ready for compilation and testing with storage.inrupt.com  
 
-Enable LibreOffice users to store documents on Solid pods through the native **File → Open Remote Files** system. This provides users control over where their data lives, aligning with digital sovereignty initiatives where organizations want to control their document storage infrastructure.
+## Key Components
 
-## 🚀 Installation
+- **SolidOAuth.cxx/hxx**: OAuth 2.0 + PKCE + DPoP authentication implementation
+- **solidprovider.cxx/hxx**: Main UCP implementation 
+- **solidcontent.cxx/hxx**: Content interface for file operations
+- **SolidHttpSession.cxx/hxx**: HTTP session management with authentication headers
+- **SolidRemoteFilesService.cxx/hxx**: Integration with LibreOffice's Remote Files system
 
-### Native LibreOffice Integration
+## Building
 
-This is now integrated directly into LibreOffice source code. To build LibreOffice with Solid support:
+This code has been integrated into LibreOffice core. To build:
 
-1. **LibreOffice Source Integration**:
+1. **Copy source to LibreOffice tree**:
    ```bash
-   # Copy Solid UCP to LibreOffice source tree
-   cp -r ucb/source/ucp/solid/ /path/to/libreoffice-source/ucb/source/ucp/
-   
-   # Add build system integration (Library_ucpsolid.mk)
-   # Update Module_ucb.mk to include Solid UCP
+   cp -r ucb/source/ucp/solid/ /path/to/libreoffice/ucb/source/ucp/
    ```
 
-2. **Build LibreOffice**:
+2. **Add build files** (already created):
+   - `Library_ucpsolid.mk` - gbuild library definition
+   - Updated `Module_ucb.mk` - includes Solid UCP in build
+   - Updated `Configuration.xcu` - registers UCP service
+
+3. **Build LibreOffice**:
    ```bash
-   cd /path/to/libreoffice-source
    ./configure
    make clean && make -j$(nproc)
    ```
 
-3. **Access Solid in LibreOffice**:
-   - Go to **File** → **Open Remote Files**
-   - Click **Add Service**
-   - Select **Solid** from the service type dropdown
-   - Enter your pod URL: `https://storage.inrupt.com/YOUR-POD-ID`
+## How It Works
 
-## 📁 Implementation Architecture
+1. **URL Detection**: Handles `https://storage.inrupt.com/*` URLs
+2. **Authentication**: Full OAuth 2.0 + PKCE + DPoP flow
+3. **File Operations**: Standard LibreOffice content operations (read/write/stream)
+4. **UI Integration**: Appears as "Solid" in Remote Files service dropdown
 
-### Native Integration ✅
-- **Universal Content Provider (UCP)**: Integrated into LibreOffice's ucb module
-- **Remote Files Service**: Native support in LibreOffice's file picker
-- **Build System Integration**: Proper gbuild makefile integration
-- **Component Registration**: Registered in LibreOffice's service configuration
+## Development Areas
 
-### Authentication & Security ✅
-- **OAuth 2.0 + PKCE**: Complete authorization code flow with PKCE
-- **DPoP Tokens**: Demonstration of Proof-of-Possession for enhanced security
-- **ECDSA P-256**: Cryptographic key generation and JWT signing
-- **PodSpaces Integration**: Native support for Inrupt PodSpaces
+- **Authentication**: OAuth flows, token refresh, DPoP token generation
+- **HTTP Operations**: Authenticated requests to Solid pods
+- **Content Operations**: File read/write, metadata, streaming
+- **Error Handling**: Network errors, authentication failures
+- **Testing**: Integration with different Solid pod providers
 
-### File Operations ✅
-- **Resource Access**: Read/write operations with proper authentication
-- **Content Streaming**: Efficient data transfer to/from pods
-- **URL Handling**: Support for `https://storage.inrupt.com/*` patterns
+## Dependencies
 
-## 🧪 Usage
+- **libcurl**: HTTP operations
+- **openssl**: ECDSA P-256 key generation and JWT signing
+- **LibreOffice libraries**: ucbhelper, comphelper, sal, etc.
 
-### Connecting to Your Solid Pod
+## Technical Details
 
-1. **Build LibreOffice with Solid support** (see Installation section)
-2. **Add Solid Service**:
-   - Go to **File** → **Open Remote Files**
-   - Click **Add Service**
-   - Select **Solid** as service type
-   - Enter your pod URL: `https://storage.inrupt.com/YOUR-POD-ID`
-3. **Authenticate**:
-   - Browser window opens for OAuth login
-   - Sign in to your Inrupt account
-   - Grant permissions to LibreOffice
-4. **Access Files**:
-   - Browse and select files from your pod
-   - Open, edit, and save documents directly
+- **DPoP Implementation**: ECDSA P-256 key pairs, JWT token signing
+- **PKCE Support**: Code challenge/verifier for OAuth security
+- **Session Management**: Token storage, refresh, secure credential handling
+- **URL Patterns**: Configurable pod domain detection
 
-### Supported URLs
-- `https://storage.inrupt.com/*` - Direct PodSpaces URLs
-- Detection based on domain patterns for Solid pod providers
+## Contributing
 
-## 🔧 Technical Details
+Areas where help is needed:
 
-### Source Code Structure
-```
-ucb/source/ucp/solid/
-├── SolidOAuth.cxx/hxx          # OAuth 2.0 + PKCE + DPoP implementation
-├── SolidHttpSession.cxx/hxx    # HTTP session management
-├── solidprovider.cxx/hxx       # Universal Content Provider
-├── solidcontent.cxx/hxx        # Content interface implementation
-├── SolidRemoteFilesService.*   # Remote Files integration
-├── SolidConfigDialog.*         # Configuration dialog
-└── *.component                 # UNO component definitions
-```
+- **Testing**: Verify compatibility with different Solid pod providers
+- **Performance**: Optimize HTTP operations and authentication flows
+- **Features**: Container operations, ACL integration, metadata handling
+- **Documentation**: Code comments, API documentation
 
-### Build Integration
-- **Library_ucpsolid.mk**: LibreOffice gbuild library definition
-- **Module_ucb.mk**: UCB module integration
-- **Configuration.xcu**: UCP service registration
-- **PlaceEditDialog integration**: Native UI support
+## License
 
-### Security Features
-- **PKCE**: Proof Key for Code Exchange prevents authorization code interception
-- **DPoP**: Cryptographically binds tokens to client, preventing token theft
-- **Key Rotation**: Automatic generation of unique key pairs per session
-- **Secure Storage**: Tokens stored securely in LibreOffice's credential manager
-
-## 🔨 Development
-
-### Prerequisites
-- LibreOffice source code
-- C++ build environment (g++, make, gbuild)
-- Development libraries: libcurl, openssl
-- LibreOffice build dependencies
-
-### Building
-1. Integrate source code into LibreOffice source tree
-2. Add build system files
-3. Configure and build LibreOffice with Solid support
-
-See [INSTALL.md](INSTALL.md) for detailed build and integration instructions.
-
-## 🤝 Contributing
-
-Contributions welcome! Areas for enhancement:
-- Additional Solid pod providers (beyond Inrupt PodSpaces)
-- Container operations (folder browsing, creation)
-- Access control (ACL) integration
-- Performance optimizations
-- Extended authentication methods
-
-## ⚠️ Security Considerations
-
-- Tokens are stored locally and transmitted securely
-- DPoP keys are generated fresh for each session
-- All HTTP communications use TLS
-- Follows Solid security best practices
-- Integrated with LibreOffice's native security systems
-
-## 📖 Resources
-
-- [Solid Protocol Specification](https://solidproject.org/TR/protocol)
-- [WebID-OIDC Specification](https://solid.github.io/webid-oidc-spec/)
-- [LibreOffice Development](https://wiki.documentfoundation.org/Development)
-- [LibreOffice UCP Development](https://wiki.documentfoundation.org/Development/Modules/UCB)
-
-## 📄 License
-
-Mozilla Public License 2.0 (MPL-2.0) - same as LibreOffice core.
-
----
-
-**Development Status**: Native LibreOffice integration for Solid protocol support. Ready for LibreOffice source code integration and building.
+MPL-2.0 (same as LibreOffice core)
