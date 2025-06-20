@@ -1,67 +1,89 @@
-# Contributing to LibreOffice Solid Protocol Connector
+# Contributing to LibreOffice Solid UCP
 
-Thank you for your interest in contributing to the LibreOffice Solid Protocol Connector!
+Thanks for your interest in contributing! This project provides native Solid pod integration for LibreOffice.
 
-## Development Setup
+## Getting Started
 
-### Prerequisites
-- LibreOffice development environment
-- CURL library with development headers
-- OpenSSL development libraries
-- C++17 compatible compiler
+1. **Read the docs**: Check [README.md](README.md) and [INSTALL.md](INSTALL.md)
+2. **Build it**: Follow the installation guide to get LibreOffice building with Solid support
+3. **Test it**: Try connecting to storage.inrupt.com pods
+4. **Find issues**: Check GitHub issues or test different scenarios
 
-### Building
-1. Configure LibreOffice with Solid support:
-   ```bash
-   ./configure --with-solid
-   ```
+## Development Areas
 
-2. Build the UCB module:
-   ```bash
-   make ucb
-   ```
+### Authentication (SolidOAuth.cxx/hxx)
+- OAuth 2.0 + PKCE flow implementation
+- DPoP token generation (ECDSA P-256 + JWT)
+- Token refresh and storage
+- Error handling for auth failures
 
-## Code Style Guidelines
+### HTTP Operations (SolidHttpSession.cxx/hxx)
+- Authenticated requests to Solid pods
+- File upload/download operations
+- Proper header management
+- Network error handling
 
-This project follows LibreOffice coding conventions:
-- Use LibreOffice naming conventions (camelCase for variables, PascalCase for classes)
-- Follow existing indentation and formatting patterns
-- Include proper license headers in all source files
-- Use LibreOffice UNO patterns for component implementation
+### Content Operations (solidcontent.cxx/hxx)
+- LibreOffice Content interface implementation
+- File metadata operations
+- Stream handling for large files
+- Directory/container operations
 
-## Submitting Changes
+### UI Integration (SolidRemoteFilesService.cxx/hxx)
+- Remote Files dialog integration
+- Configuration dialogs
+- Error message display
+- User experience improvements
 
-### For this Repository
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/description`
-3. Make your changes following the code style guidelines
-4. Test your changes thoroughly
-5. Submit a pull request with a clear description
+## Code Style
 
-### For LibreOffice Integration
-1. Test changes in a full LibreOffice build
-2. Submit patches to LibreOffice Gerrit: https://gerrit.libreoffice.org/
-3. Follow LibreOffice development process: https://wiki.documentfoundation.org/Development
-
-## Reporting Issues
-
-- Use GitHub Issues for bugs and feature requests
-- For security vulnerabilities, see SECURITY.md
-- For LibreOffice-specific issues, use https://bugs.documentfoundation.org/
+- Follow LibreOffice coding standards
+- Use existing LibreOffice patterns (sal, rtl, uno)
+- Add appropriate error handling
+- Include debug logging with SAL_WARN/SAL_INFO
 
 ## Testing
 
-Before submitting changes:
-1. Ensure code compiles without warnings
-2. Test basic connectivity with Solid pods (PodSpaces recommended)
-3. Verify new code doesn't break existing LibreOffice functionality
+### Manual Testing
+1. Build LibreOffice with Solid UCP
+2. Open LibreOffice Writer
+3. File → Open Remote Files → Add Service → Solid
+4. Test authentication flow with storage.inrupt.com
+5. Try opening/saving documents
 
-## Code of Conduct
+### What to Test
+- Different pod providers
+- Authentication edge cases (expired tokens, network failures)
+- File operations (read, write, save as)
+- Large file handling
+- Error scenarios
 
-This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md).
+## Submitting Changes
+
+1. **Fork this repo** and create a feature branch
+2. **Make your changes** with clear, focused commits
+3. **Test thoroughly** with real Solid pods
+4. **Submit a pull request** with:
+   - Clear description of changes
+   - Test results
+   - Any new dependencies or build requirements
+
+## Upstream Path
+
+This code is intended for eventual submission to LibreOffice upstream:
+
+- **LibreOffice Gerrit**: https://gerrit.libreoffice.org/
+- **Development docs**: https://wiki.documentfoundation.org/Development
+- **Mailing list**: libreoffice@lists.freedesktop.org
+
+Major changes should consider the upstream submission path.
 
 ## Questions?
 
-- GitHub Issues: https://github.com/inrupt/libreoffice-solid/issues
-- Solid Community: https://solidproject.org/developers
-- LibreOffice Development: https://wiki.documentfoundation.org/Development
+- **GitHub Issues**: Technical questions and bug reports
+- **Discussions**: Feature ideas and architecture discussions
+- **LibreOffice IRC**: #libreoffice-dev on OFTC for LibreOffice-specific questions
+
+## License
+
+All contributions must be compatible with MPL-2.0 (LibreOffice's license).
