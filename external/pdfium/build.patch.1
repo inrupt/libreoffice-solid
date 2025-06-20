@@ -1,0 +1,193 @@
+-*- Mode: diff -*-
+diff --git a/core/fpdfdoc/cpdf_metadata.cpp b/core/fpdfdoc/cpdf_metadata.cpp
+index 31564f45f..5858549ef 100644
+--- a/core/fpdfdoc/cpdf_metadata.cpp
++++ b/core/fpdfdoc/cpdf_metadata.cpp
+@@ -87,7 +87,7 @@ std::vector<UnsupportedFeature> CPDF_Metadata::CheckForSharedForm() const {
+   CFX_XMLParser parser(stream);
+   std::unique_ptr<CFX_XMLDocument> doc = parser.Parse();
+   if (!doc)
+-    return {};
++    return std::vector<UnsupportedFeature>();
+ 
+   std::vector<UnsupportedFeature> unsupported;
+   CheckForSharedFormInternal(/*depth=*/0, doc->GetRoot(), &unsupported);
+diff --git a/core/fxge/cfx_face.cpp b/core/fxge/cfx_face.cpp
+index 7d9cd0f44..0d0a311aa 100644
+--- a/core/fxge/cfx_face.cpp
++++ b/core/fxge/cfx_face.cpp
+@@ -654,7 +654,7 @@ int CFX_Face::GetCharIndex(uint32_t code) {
+ }
+ 
+ int CFX_Face::GetNameIndex(const char* name) {
+-  return FT_Get_Name_Index(GetRec(), name);
++  return FT_Get_Name_Index(GetRec(), const_cast<char*>(name));
+ }
+ 
+ FX_RECT CFX_Face::GetCharBBox(uint32_t code, int glyph_index) {
+diff --git a/core/fpdfdoc/cpdf_action.cpp b/core/fpdfdoc/cpdf_action.cpp
+index a5b687d76..076a260d5 100644
+--- a/core/fpdfdoc/cpdf_action.cpp
++++ b/core/fpdfdoc/cpdf_action.cpp
+@@ -21,7 +21,7 @@
+ 
+ namespace {
+ 
+-constexpr auto kActionTypeStrings = fxcrt::ToArray<const char*>({
++std::array<const char*, 18> kActionTypeStrings = {
+     "GoTo",
+     "GoToR",
+     "GoToE",
+@@ -40,7 +40,7 @@ constexpr auto kActionTypeStrings = fxcrt::ToArray<const char*>({
+     "Rendition",
+     "Trans",
+     "GoTo3DView",
+-});
++};
+ 
+ }  // namespace
+ 
+diff --git a/core/fpdfdoc/cpdf_dest.cpp b/core/fpdfdoc/cpdf_dest.cpp
+index 8026a75d5..34c20d62f 100644
+--- a/core/fpdfdoc/cpdf_dest.cpp
++++ b/core/fpdfdoc/cpdf_dest.cpp
+@@ -21,9 +21,9 @@ namespace {
+ 
+ // These arrays are indexed by the PDFDEST_VIEW_* constants.
+ 
+-constexpr auto kZoomModes =
+-    fxcrt::ToArray<const char*>({"Unknown", "XYZ", "Fit", "FitH", "FitV",
+-                                 "FitR", "FitB", "FitBH", "FitBV"});
++std::array<const char*, 9>  kZoomModes = {
++    "Unknown", "XYZ", "Fit", "FitH", "FitV",
++                                 "FitR", "FitB", "FitBH", "FitBV"};
+ 
+ constexpr auto kZoomModeMaxParamCount =
+     fxcrt::ToArray<const uint8_t>({0, 3, 0, 1, 1, 4, 0, 1, 1});
+--- pdfium/fpdfsdk/fpdf_annot.cpp.orig	2024-08-15 10:01:30.443712200 +0200
++++ pdfium/fpdfsdk/fpdf_annot.cpp	2024-08-15 10:04:41.161274500 +0200
+@@ -1079,8 +1079,8 @@
+   if (appearanceMode < 0 || appearanceMode >= FPDF_ANNOT_APPEARANCEMODE_COUNT)
+     return false;
+ 
+-  static constexpr auto kModeKeyForMode =
+-      fxcrt::ToArray<const char*>({"N", "R", "D"});
++  static constexpr std::array<const char*, 3UL> kModeKeyForMode
++      ({"N", "R", "D"});
+   static_assert(kModeKeyForMode.size() == FPDF_ANNOT_APPEARANCEMODE_COUNT,
+                 "length of kModeKeyForMode should be equal to "
+                 "FPDF_ANNOT_APPEARANCEMODE_COUNT");
+diff --git a/fpdfsdk/cpdfsdk_appstream.cpp b/fpdfsdk/cpdfsdk_appstream.cpp
+index 3a9bfabef..b7b06cae8 100644
+--- a/fpdfsdk/cpdfsdk_appstream.cpp
++++ b/fpdfsdk/cpdfsdk_appstream.cpp
+@@ -1055,7 +1055,7 @@ ByteString GetDropButtonAppStream(const CFX_FloatRect& rcBBox) {
+         rcBBox, 2, CFX_Color(CFX_Color::Type::kGray, 0),
+         CFX_Color(CFX_Color::Type::kGray, 1),
+         CFX_Color(CFX_Color::Type::kGray, 0.5), BorderStyle::kBeveled,
+-        CPWL_Dash(3, 0, 0));
++        CPWL_Dash{3, 0, 0});
+   }
+ 
+   CFX_PointF ptCenter = CFX_PointF((rcBBox.left + rcBBox.right) / 2,
+@@ -1162,14 +1162,14 @@ void CPDFSDK_AppStream::SetAsPushButton() {
+   CFX_Color crBorder = pControl->GetOriginalBorderColor();
+ 
+   float fBorderWidth = static_cast<float>(widget_->GetBorderWidth());
+-  CPWL_Dash dsBorder(3, 0, 0);
++  CPWL_Dash dsBorder{3, 0, 0};
+   CFX_Color crLeftTop;
+   CFX_Color crRightBottom;
+ 
+   BorderStyle nBorderStyle = widget_->GetBorderStyle();
+   switch (nBorderStyle) {
+     case BorderStyle::kDash:
+-      dsBorder = CPWL_Dash(3, 3, 0);
++      dsBorder = CPWL_Dash{3, 3, 0};
+       break;
+     case BorderStyle::kBeveled:
+       fBorderWidth *= 2;
+@@ -1313,14 +1313,14 @@ void CPDFSDK_AppStream::SetAsCheckBox() {
+   CFX_Color crBackground = pControl->GetOriginalBackgroundColor();
+   CFX_Color crBorder = pControl->GetOriginalBorderColor();
+   float fBorderWidth = static_cast<float>(widget_->GetBorderWidth());
+-  CPWL_Dash dsBorder(3, 0, 0);
++  CPWL_Dash dsBorder{3, 0, 0};
+   CFX_Color crLeftTop;
+   CFX_Color crRightBottom;
+ 
+   BorderStyle nBorderStyle = widget_->GetBorderStyle();
+   switch (nBorderStyle) {
+     case BorderStyle::kDash:
+-      dsBorder = CPWL_Dash(3, 3, 0);
++      dsBorder = CPWL_Dash{3, 3, 0};
+       break;
+     case BorderStyle::kBeveled:
+       fBorderWidth *= 2;
+@@ -1392,14 +1392,14 @@ void CPDFSDK_AppStream::SetAsRadioButton() {
+   CFX_Color crBackground = pControl->GetOriginalBackgroundColor();
+   CFX_Color crBorder = pControl->GetOriginalBorderColor();
+   float fBorderWidth = static_cast<float>(widget_->GetBorderWidth());
+-  CPWL_Dash dsBorder(3, 0, 0);
++  CPWL_Dash dsBorder{3, 0, 0};
+   CFX_Color crLeftTop;
+   CFX_Color crRightBottom;
+ 
+   BorderStyle nBorderStyle = widget_->GetBorderStyle();
+   switch (nBorderStyle) {
+     case BorderStyle::kDash:
+-      dsBorder = CPWL_Dash(3, 3, 0);
++      dsBorder = CPWL_Dash{3, 3, 0};
+       break;
+     case BorderStyle::kBeveled:
+       fBorderWidth *= 2;
+@@ -1769,7 +1769,7 @@ void CPDFSDK_AppStream::SetAsTextField(std::optional<WideString> sValue) {
+         ByteString sColor =
+             GetStrokeColorAppStream(widget_->GetBorderPWLColor());
+         if (sColor.GetLength() > 0) {
+-          CPWL_Dash dsBorder = CPWL_Dash(3, 3, 0);
++          CPWL_Dash dsBorder = CPWL_Dash{3, 3, 0};
+           AutoClosedQCommand q(&sLines);
+           sLines << widget_->GetBorderWidth() << " " << kSetLineWidthOperator
+                  << "\n"
+@@ -1876,12 +1876,12 @@ ByteString CPDFSDK_AppStream::GetBorderAppStream() const {
+   CFX_Color crRightBottom;
+ 
+   float fBorderWidth = static_cast<float>(widget_->GetBorderWidth());
+-  CPWL_Dash dsBorder(3, 0, 0);
++  CPWL_Dash dsBorder{3, 0, 0};
+ 
+   BorderStyle nBorderStyle = widget_->GetBorderStyle();
+   switch (nBorderStyle) {
+     case BorderStyle::kDash:
+-      dsBorder = CPWL_Dash(3, 3, 0);
++      dsBorder = CPWL_Dash{3, 3, 0};
+       break;
+     case BorderStyle::kBeveled:
+       fBorderWidth *= 2;
+diff --git a/fpdfsdk/formfiller/cffl_formfield.cpp b/fpdfsdk/formfiller/cffl_formfield.cpp
+index 49edfdaed..bba78eda6 100644
+--- a/fpdfsdk/formfiller/cffl_formfield.cpp
++++ b/fpdfsdk/formfiller/cffl_formfield.cpp
+@@ -336,7 +336,7 @@ CPWL_Wnd::CreateParams CFFL_FormField::GetCreateParam() {
+   cp.nBorderStyle = m_pWidget->GetBorderStyle();
+   switch (cp.nBorderStyle) {
+     case BorderStyle::kDash:
+-      cp.sDash = CPWL_Dash(3, 3, 0);
++      cp.sDash = CPWL_Dash{3, 3, 0};
+       break;
+     case BorderStyle::kBeveled:
+     case BorderStyle::kInset:
+diff --git a/fpdfsdk/pwl/cpwl_wnd.cpp b/fpdfsdk/pwl/cpwl_wnd.cpp
+index 502568709..88b0cf03e 100644
+--- a/fpdfsdk/pwl/cpwl_wnd.cpp
++++ b/fpdfsdk/pwl/cpwl_wnd.cpp
+@@ -40,7 +40,7 @@ CPWL_Wnd::CreateParams::CreateParams(CFX_Timer::HandlerIface* timer_handler,
+       pFillerNotify(filler_notify),
+       pProvider(provider),
+       fFontSize(kDefaultFontSize),
+-      sDash(3, 0, 0) {}
++      sDash{3, 0, 0} {}
+ 
+ CPWL_Wnd::CreateParams::CreateParams(const CreateParams& other) = default;
+ 
