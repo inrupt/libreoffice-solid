@@ -49,7 +49,6 @@ $(eval $(call gb_Library_add_exception_objects,ucpsolid,\
 	ucb/source/ucp/solid/SolidHttpSession \
 	ucb/source/ucp/solid/SolidInputStream \
 	ucb/source/ucp/solid/SolidOAuth \
-	ucb/source/ucp/solid/SolidRemoteFilesService \
 	ucb/source/ucp/solid/SolidServiceDetector \
 	ucb/source/ucp/solid/SolidSessionBridge \
 	ucb/source/ucp/solid/SolidSessionFactory \
