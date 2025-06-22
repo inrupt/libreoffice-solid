@@ -219,8 +219,7 @@ static OUString lcl_GetServiceType( const ServicePtr& pService )
         case INetProtocol::Generic:
         {
             // Check if this is a Solid Pod URL with vnd-solid scheme
-            OUString sScheme = pService->GetUrlObject().GetScheme();
-            if( sScheme == "vnd-solid" || sScheme == "vnd-solids" )
+            if (pService->GetUrlObject().GetMainURL(INetURLObject::DecodeMechanism::NONE).startsWith("vnd-solid://"))
                 return u"Solid Pod"_ustr;
             
             return u"SSH"_ustr;
