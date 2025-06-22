@@ -23,10 +23,9 @@ struct SolidServiceConfig
     bool rememberCredentials = true;
 };
 
-class SolidConfigDialog
+class SolidConfigDialog : public weld::GenericDialogController
 {
 private:
-    std::unique_ptr<weld::Dialog> m_xDialog;
     std::unique_ptr<weld::Entry> m_xServiceNameEdit;
     std::unique_ptr<weld::Entry> m_xPodUrlEdit;
     std::unique_ptr<weld::Entry> m_xWebIdEdit;
@@ -35,7 +34,7 @@ private:
     std::unique_ptr<weld::Button> m_xTestButton;
     std::unique_ptr<weld::Button> m_xOkButton;
     std::unique_ptr<weld::Button> m_xCancelButton;
-    
+
     DECL_LINK(TestConnectionHdl, weld::Button&, void);
     DECL_LINK(OkHdl, weld::Button&, void);
     DECL_LINK(CancelHdl, weld::Button&, void);
@@ -44,9 +43,7 @@ private:
 public:
     explicit SolidConfigDialog(weld::Window* pParent);
     virtual ~SolidConfigDialog();
-    
-    short run() { return m_xDialog->run(); }
-    
+
     SolidServiceConfig getServiceConfig() const;
     void setServiceConfig(const SolidServiceConfig& config);
 };

@@ -10,31 +10,32 @@
 #include "SolidConfigDialog.hxx"
 #include "SolidServiceDetector.hxx"
 #include <vcl/weld.hxx>
+#include <vcl/svapp.hxx>
 #include <tools/urlobj.hxx>
 
 using namespace com::sun::star;
 using namespace solid::libreoffice;
 
 SolidConfigDialog::SolidConfigDialog(weld::Window* pParent)
-    : m_xDialog(weld::GenericDialogController::CreateDialog(pParent, "ui/SolidConfigDialog.ui", "SolidConfigDialog"))
+    : weld::GenericDialogController(pParent, "modules/ucb/ui/SolidConfigDialog.ui", "SolidConfigDialog")
+    , m_xServiceNameEdit(m_xBuilder->weld_entry("entry_service_name"))
+    , m_xPodUrlEdit(m_xBuilder->weld_entry("entry_pod_url"))
+    , m_xWebIdEdit(m_xBuilder->weld_entry("entry_webid"))
+    , m_xDpopCheck(m_xBuilder->weld_check_button("check_dpop"))
+    , m_xRememberCheck(m_xBuilder->weld_check_button("check_remember"))
+    , m_xTestButton(m_xBuilder->weld_button("button_test"))
+    , m_xOkButton(m_xBuilder->weld_button("button_ok"))
+    , m_xCancelButton(m_xBuilder->weld_button("button_cancel"))
 {
-    m_xServiceNameEdit = m_xDialog->get_widget<weld::Entry>("entry_service_name");
-    m_xPodUrlEdit = m_xDialog->get_widget<weld::Entry>("entry_pod_url");
-    m_xWebIdEdit = m_xDialog->get_widget<weld::Entry>("entry_webid");
-    m_xDpopCheck = m_xDialog->get_widget<weld::CheckButton>("check_dpop");
-    m_xRememberCheck = m_xDialog->get_widget<weld::CheckButton>("check_remember");
-    m_xTestButton = m_xDialog->get_widget<weld::Button>("button_test");
-    m_xOkButton = m_xDialog->get_widget<weld::Button>("button_ok");
-    m_xCancelButton = m_xDialog->get_widget<weld::Button>("button_cancel");
-    
+
     // Set up event handlers
     m_xTestButton->connect_clicked(LINK(this, SolidConfigDialog, TestConnectionHdl));
     m_xOkButton->connect_clicked(LINK(this, SolidConfigDialog, OkHdl));
     m_xCancelButton->connect_clicked(LINK(this, SolidConfigDialog, CancelHdl));
-    
+
     // Validate URL as user types
     m_xPodUrlEdit->connect_changed(LINK(this, SolidConfigDialog, UrlModifyHdl));
-    
+
     // Set default values
     m_xDpopCheck->set_active(true);
     m_xRememberCheck->set_active(true);
@@ -67,7 +68,7 @@ void SolidConfigDialog::setServiceConfig(const SolidServiceConfig& config)
 IMPL_LINK_NOARG(SolidConfigDialog, TestConnectionHdl, weld::Button&, void)
 {
     OUString sPodUrl = m_xPodUrlEdit->get_text();
-    
+
     if (sPodUrl.isEmpty())
     {
         std::unique_ptr<weld::MessageDialog> xWarning(
@@ -76,7 +77,7 @@ IMPL_LINK_NOARG(SolidConfigDialog, TestConnectionHdl, weld::Button&, void)
         xWarning->run();
         return;
     }
-    
+
     if (!SolidServiceDetector::isSolidUrl(sPodUrl))
     {
         std::unique_ptr<weld::MessageDialog> xWarning(
@@ -85,60 +86,61 @@ IMPL_LINK_NOARG(SolidConfigDialog, TestConnectionHdl, weld::Button&, void)
         xWarning->run();
         return;
     }
-    
+
     std::unique_ptr<weld::MessageDialog> xInfo(
         Application::CreateMessageDialog(m_xDialog.get(), VclMessageType::Info, VclButtonsType::Ok,
             "Connection test functionality available.\nURL format appears valid."));
     xInfo->run();
 }
 
-IMPL_LINK_NOARG(SolidConfigDialog, OkHdl, Button*, void)
+IMPL_LINK_NOARG(SolidConfigDialog, OkHdl, weld::Button&, void)
 {
-    rtl::OUString sPodUrl = m_pPodUrlEdit->GetText();
-    rtl::OUString sServiceName = m_pServiceNameEdit->GetText();
-    
+    OUString sPodUrl = m_xPodUrlEdit->get_text();
+    OUString sServiceName = m_xServiceNameEdit->get_text();
+
     if (sServiceName.isEmpty())
     {
-        ScopedVclPtr<MessageDialog> xWarning(
-            VclPtr<MessageDialog>::Create(this, "Please enter a service name.", VCL_MESSAGE_WARNING));
-        xWarning->Execute();
-        m_pServiceNameEdit->GrabFocus();
+        std::unique_ptr<weld::MessageDialog> xWarning(Application::CreateMessageDialog(m_xDialog.get(),
+            VclMessageType::Warning, VclButtonsType::Ok, "Please enter a service name."));
+        xWarning->run();
+        m_xServiceNameEdit->grab_focus();
         return;
     }
-    
+
     if (sPodUrl.isEmpty())
     {
-        ScopedVclPtr<MessageDialog> xWarning(
-            VclPtr<MessageDialog>::Create(this, "Please enter a pod URL.", VCL_MESSAGE_WARNING));
-        xWarning->Execute();
-        m_pPodUrlEdit->GrabFocus();
+        std::unique_ptr<weld::MessageDialog> xWarning(Application::CreateMessageDialog(m_xDialog.get(),
+            VclMessageType::Warning, VclButtonsType::Ok, "Please enter a pod URL."));
+        xWarning->run();
+        m_xPodUrlEdit->grab_focus();
         return;
     }
-    
+
     if (!SolidServiceDetector::isSolidUrl(sPodUrl))
     {
-        ScopedVclPtr<MessageDialog> xWarning(
-            VclPtr<MessageDialog>::Create(this, "Invalid Solid pod URL. Please enter a valid URL like:\nhttps://storage.inrupt.com/YOUR-POD-ID", VCL_MESSAGE_WARNING));
-        xWarning->Execute();
-        m_pPodUrlEdit->GrabFocus();
+        std::unique_ptr<weld::MessageDialog> xWarning(Application::CreateMessageDialog(m_xDialog.get(),
+            VclMessageType::Warning, VclButtonsType::Ok,
+            "Invalid Solid pod URL. Please enter a valid URL like:\nhttps://storage.inrupt.com/YOUR-POD-ID"));
+        xWarning->run();
+        m_xPodUrlEdit->grab_focus();
         return;
     }
-    
-    EndDialog(RET_OK);
+
+    m_xDialog->response(RET_OK);
 }
 
-IMPL_LINK_NOARG(SolidConfigDialog, CancelHdl, Button*, void)
+IMPL_LINK_NOARG(SolidConfigDialog, CancelHdl, weld::Button&, void)
 {
-    EndDialog(RET_CANCEL);
+    m_xDialog->response(RET_CANCEL);
 }
 
-IMPL_LINK_NOARG(SolidConfigDialog, UrlModifyHdl, Edit&, void)
+IMPL_LINK_NOARG(SolidConfigDialog, UrlModifyHdl, weld::Entry&, void)
 {
-    rtl::OUString sUrl = m_pPodUrlEdit->GetText();
-    
+    OUString sUrl = m_xPodUrlEdit->get_text();
+
     // Enable/disable OK button based on URL validity
     bool bValidUrl = !sUrl.isEmpty() && SolidServiceDetector::isSolidUrl(sUrl);
-    m_pOkButton->Enable(bValidUrl && !m_pServiceNameEdit->GetText().isEmpty());
+    m_xOkButton->set_sensitive(bValidUrl && !m_xServiceNameEdit->get_text().isEmpty());
 }
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */
