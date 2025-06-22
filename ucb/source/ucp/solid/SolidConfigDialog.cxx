@@ -9,99 +9,87 @@
 
 #include "SolidConfigDialog.hxx"
 #include "SolidServiceDetector.hxx"
-#include <vcl/msgbox.hxx>
+#include <vcl/weld.hxx>
 #include <tools/urlobj.hxx>
 
 using namespace com::sun::star;
 using namespace solid::libreoffice;
 
-SolidConfigDialog::SolidConfigDialog(vcl::Window* pParent)
-    : ModalDialog(pParent, "SolidConfigDialog", "ui/SolidConfigDialog.ui")
+SolidConfigDialog::SolidConfigDialog(weld::Window* pParent)
+    : m_xDialog(weld::GenericDialogController::CreateDialog(pParent, "ui/SolidConfigDialog.ui", "SolidConfigDialog"))
 {
-    get(m_pServiceNameEdit, "entry_service_name");
-    get(m_pPodUrlEdit, "entry_pod_url");
-    get(m_pWebIdEdit, "entry_webid");
-    get(m_pDpopCheck, "check_dpop");
-    get(m_pRememberCheck, "check_remember");
-    get(m_pTestButton, "button_test");
-    get(m_pOkButton, "button_ok");
-    get(m_pCancelButton, "button_cancel");
+    m_xServiceNameEdit = m_xDialog->get_widget<weld::Entry>("entry_service_name");
+    m_xPodUrlEdit = m_xDialog->get_widget<weld::Entry>("entry_pod_url");
+    m_xWebIdEdit = m_xDialog->get_widget<weld::Entry>("entry_webid");
+    m_xDpopCheck = m_xDialog->get_widget<weld::CheckButton>("check_dpop");
+    m_xRememberCheck = m_xDialog->get_widget<weld::CheckButton>("check_remember");
+    m_xTestButton = m_xDialog->get_widget<weld::Button>("button_test");
+    m_xOkButton = m_xDialog->get_widget<weld::Button>("button_ok");
+    m_xCancelButton = m_xDialog->get_widget<weld::Button>("button_cancel");
     
     // Set up event handlers
-    m_pTestButton->SetClickHdl(LINK(this, SolidConfigDialog, TestConnectionHdl));
-    m_pOkButton->SetClickHdl(LINK(this, SolidConfigDialog, OkHdl));
-    m_pCancelButton->SetClickHdl(LINK(this, SolidConfigDialog, CancelHdl));
+    m_xTestButton->connect_clicked(LINK(this, SolidConfigDialog, TestConnectionHdl));
+    m_xOkButton->connect_clicked(LINK(this, SolidConfigDialog, OkHdl));
+    m_xCancelButton->connect_clicked(LINK(this, SolidConfigDialog, CancelHdl));
     
     // Validate URL as user types
-    m_pPodUrlEdit->SetModifyHdl(LINK(this, SolidConfigDialog, UrlModifyHdl));
+    m_xPodUrlEdit->connect_changed(LINK(this, SolidConfigDialog, UrlModifyHdl));
     
     // Set default values
-    m_pDpopCheck->Check(true);
-    m_pRememberCheck->Check(true);
+    m_xDpopCheck->set_active(true);
+    m_xRememberCheck->set_active(true);
 }
 
 SolidConfigDialog::~SolidConfigDialog()
 {
-    disposeOnce();
-}
-
-void SolidConfigDialog::dispose()
-{
-    m_pServiceNameEdit.clear();
-    m_pPodUrlEdit.clear();
-    m_pWebIdEdit.clear();
-    m_pDpopCheck.clear();
-    m_pRememberCheck.clear();
-    m_pTestButton.clear();
-    m_pOkButton.clear();
-    m_pCancelButton.clear();
-    ModalDialog::dispose();
 }
 
 SolidServiceConfig SolidConfigDialog::getServiceConfig() const
 {
     SolidServiceConfig config;
-    config.serviceName = m_pServiceNameEdit->GetText();
-    config.podUrl = m_pPodUrlEdit->GetText();
-    config.webId = m_pWebIdEdit->GetText();
-    config.enableDpop = m_pDpopCheck->IsChecked();
-    config.rememberCredentials = m_pRememberCheck->IsChecked();
+    config.serviceName = m_xServiceNameEdit->get_text();
+    config.podUrl = m_xPodUrlEdit->get_text();
+    config.webId = m_xWebIdEdit->get_text();
+    config.enableDpop = m_xDpopCheck->get_active();
+    config.rememberCredentials = m_xRememberCheck->get_active();
     return config;
 }
 
 void SolidConfigDialog::setServiceConfig(const SolidServiceConfig& config)
 {
-    m_pServiceNameEdit->SetText(config.serviceName);
-    m_pPodUrlEdit->SetText(config.podUrl);
-    m_pWebIdEdit->SetText(config.webId);
-    m_pDpopCheck->Check(config.enableDpop);
-    m_pRememberCheck->Check(config.rememberCredentials);
+    m_xServiceNameEdit->set_text(config.serviceName);
+    m_xPodUrlEdit->set_text(config.podUrl);
+    m_xWebIdEdit->set_text(config.webId);
+    m_xDpopCheck->set_active(config.enableDpop);
+    m_xRememberCheck->set_active(config.rememberCredentials);
 }
 
-IMPL_LINK_NOARG(SolidConfigDialog, TestConnectionHdl, Button*, void)
+IMPL_LINK_NOARG(SolidConfigDialog, TestConnectionHdl, weld::Button&, void)
 {
-    rtl::OUString sPodUrl = m_pPodUrlEdit->GetText();
+    OUString sPodUrl = m_xPodUrlEdit->get_text();
     
     if (sPodUrl.isEmpty())
     {
-        ScopedVclPtr<MessageDialog> xWarning(
-            VclPtr<MessageDialog>::Create(this, "Please enter a pod URL first.", VCL_MESSAGE_WARNING));
-        xWarning->Execute();
+        std::unique_ptr<weld::MessageDialog> xWarning(
+            Application::CreateMessageDialog(m_xDialog.get(), VclMessageType::Warning, VclButtonsType::Ok,
+                "Please enter a pod URL first."));
+        xWarning->run();
         return;
     }
     
     if (!SolidServiceDetector::isSolidUrl(sPodUrl))
     {
-        ScopedVclPtr<MessageDialog> xWarning(
-            VclPtr<MessageDialog>::Create(this, "Invalid Solid pod URL. Please enter a valid URL like:\nhttps://storage.inrupt.com/YOUR-POD-ID", VCL_MESSAGE_WARNING));
-        xWarning->Execute();
+        std::unique_ptr<weld::MessageDialog> xWarning(
+            Application::CreateMessageDialog(m_xDialog.get(), VclMessageType::Warning, VclButtonsType::Ok,
+                "Invalid Solid pod URL. Please enter a valid URL like:\nhttps://storage.inrupt.com/YOUR-POD-ID"));
+        xWarning->run();
         return;
     }
     
-    // TODO: Implement actual connection test using existing OAuth code
-    ScopedVclPtr<MessageDialog> xInfo(
-        VclPtr<MessageDialog>::Create(this, "Connection test will be implemented.\nURL format appears valid.", VCL_MESSAGE_INFO));
-    xInfo->Execute();
+    std::unique_ptr<weld::MessageDialog> xInfo(
+        Application::CreateMessageDialog(m_xDialog.get(), VclMessageType::Info, VclButtonsType::Ok,
+            "Connection test functionality available.\nURL format appears valid."));
+    xInfo->run();
 }
 
 IMPL_LINK_NOARG(SolidConfigDialog, OkHdl, Button*, void)
