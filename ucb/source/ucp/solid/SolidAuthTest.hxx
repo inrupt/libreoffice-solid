@@ -16,7 +16,7 @@
 
 using rtl::OUString;
 
-namespace solid { namespace libreoffice {
+namespace libreoffice { namespace solid {
 
 class SolidAuthTest : public cppu::WeakImplHelper1<css::lang::XServiceInfo>
 {
@@ -37,4 +37,4 @@ public:
 };
 
 } // namespace libreoffice
-} // namespace solid
+} // namespace libreoffice

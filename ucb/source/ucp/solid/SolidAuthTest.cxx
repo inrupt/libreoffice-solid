@@ -17,7 +17,7 @@
 
 using namespace css;
 
-namespace solid { namespace libreoffice {
+namespace libreoffice { namespace solid {
 
 SolidAuthTest::SolidAuthTest(const uno::Reference<uno::XComponentContext>& xContext)
 : m_xContext(xContext)
@@ -52,14 +52,14 @@ uno::Sequence<OUString> SAL_CALL SolidAuthTest::getSupportedServiceNames()
 bool SolidAuthTest::testDPoPAuthentication(const OUString& podUrl)
 {
     SAL_WARN("solid.test", "Testing DPoP authentication for: " << podUrl);
-    
+
     try {
         SolidOAuthClient client(m_xContext);
         bool result = client.authenticate(podUrl);
-        
+
         if (result) {
             SAL_WARN("solid.test", "DPoP authentication SUCCESS for: " << podUrl);
-            
+
             // Test getting tokens
             const SolidOAuthTokens& tokens = client.getTokens();
             if (tokens.isValid()) {
@@ -85,7 +85,7 @@ bool SolidAuthTest::testDPoPAuthentication(const OUString& podUrl)
 }
 
 } // namespace libreoffice
-} // namespace solid
+} // namespace libreoffice
 
 static css::uno::Reference<css::uno::XInterface> create_SolidAuthTest(
     const css::uno::Reference<css::lang::XMultiServiceFactory>&)
@@ -100,11 +100,11 @@ extern "C" SAL_DLLPUBLIC_EXPORT sal_Bool component_writeInfo(
     {
         css::uno::Reference<css::registry::XRegistryKey> key(
             static_cast<css::registry::XRegistryKey*>(registry));
-        
+
         css::uno::Reference<css::registry::XRegistryKey> key1 = key->createKey(
             "/com.sun.star.comp.SolidAuthTest/UNO/SERVICES");
         key1->createKey("com.sun.star.SolidAuthTest");
-        
+
         return sal_True;
     }
     catch (css::registry::InvalidRegistryException &)
@@ -117,27 +117,27 @@ extern "C" SAL_DLLPUBLIC_EXPORT void* component_getFactory(
     const char* implName, void* serviceManager, void*)
 {
     void* factory = nullptr;
-    
+
     if (rtl_str_compare(implName, "com.sun.star.comp.SolidAuthTest") == 0)
     {
         css::uno::Reference<css::lang::XMultiServiceFactory> msf(
             static_cast<css::lang::XMultiServiceFactory*>(serviceManager), css::uno::UNO_QUERY);
-        
+
         css::uno::Sequence<rtl::OUString> aSeq(1);
         aSeq.getArray()[0] = rtl::OUString("com.sun.star.SolidAuthTest");
-        
+
         factory = cppu::createSingleFactory(
             msf,
             "com.sun.star.comp.SolidAuthTest",
             create_SolidAuthTest,
             aSeq
         ).get();
-        
+
         if (factory)
         {
             static_cast<css::uno::XInterface*>(factory)->acquire();
         }
     }
-    
+
     return factory;
 }

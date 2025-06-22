@@ -11,7 +11,7 @@
 
 #include <rtl/ustring.hxx>
 
-namespace solid { namespace libreoffice {
+namespace libreoffice { namespace solid {
 
 class SolidServiceDetector
 {
@@ -20,12 +20,12 @@ public:
      * Check if the given URL is a Solid pod URL
      */
     static bool isSolidUrl(const rtl::OUString& rUrl);
-    
+
     /**
      * Get service type name for Solid URLs
      */
     static rtl::OUString getServiceType(const rtl::OUString& rUrl);
-    
+
     /**
      * Normalize solid:// URLs to https://storage.inrupt.com/ format
      */
@@ -33,6 +33,6 @@ public:
 };
 
 } // namespace libreoffice
-} // namespace solid
+} // namespace libreoffice
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

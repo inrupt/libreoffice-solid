@@ -14,7 +14,7 @@
 
 using namespace com::sun::star;
 
-namespace solid { namespace libreoffice
+namespace libreoffice { namespace solid
 {
 
 // SolidSession Implementation
@@ -80,13 +80,13 @@ void SolidSession::GET(SolidRequestEnvironment& rEnv)
         SolidHttpSession httpSession(m_xContext);
         httpSession.setAccessToken(m_aAccessToken);
         httpSession.setWebId(m_aWebId);
-        
+
         // Perform authenticated GET request
         uno::Reference<io::XInputStream> xResponse = httpSession.httpGET(rEnv.m_aRequestURI);
-        
+
         // Store response in environment for caller
         rEnv.m_xInputStream = xResponse;
-        
+
     }
     catch (const uno::Exception& e)
     {
@@ -103,13 +103,13 @@ void SolidSession::PUT(const uno::Reference<io::XInputStream>& xInputStream,
         SolidHttpSession httpSession(m_xContext);
         httpSession.setAccessToken(m_aAccessToken);
         httpSession.setWebId(m_aWebId);
-        
+
         // Detect content type based on URL extension
         OUString sContentType = detectContentType(rEnv.m_aRequestURI);
-        
+
         // Perform authenticated PUT request
         httpSession.httpPUT(rEnv.m_aRequestURI, xInputStream, sContentType);
-        
+
     }
     catch (const uno::Exception& e)
     {
@@ -128,13 +128,13 @@ void SolidSession::POST(const uno::Reference<io::XInputStream>& xInputStream,
         SolidHttpSession httpSession(m_xContext);
         httpSession.setAccessToken(m_aAccessToken);
         httpSession.setWebId(m_aWebId);
-        
+
         // Use provided content type or detect it
         OUString sContentType = rContentType.isEmpty() ? detectContentType(rEnv.m_aRequestURI) : rContentType;
-        
+
         // Perform authenticated POST request
         httpSession.httpPOST(rEnv.m_aRequestURI, xInputStream, sContentType);
-        
+
     }
     catch (const uno::Exception& e)
     {
@@ -150,10 +150,10 @@ void SolidSession::DELETE(SolidRequestEnvironment& rEnv)
         SolidHttpSession httpSession(m_xContext);
         httpSession.setAccessToken(m_aAccessToken);
         httpSession.setWebId(m_aWebId);
-        
+
         // Perform authenticated DELETE request
         httpSession.httpDELETE(rEnv.m_aRequestURI);
-        
+
     }
     catch (const uno::Exception& e)
     {
@@ -169,14 +169,14 @@ void SolidSession::MKCOL(SolidRequestEnvironment& rEnv)
         SolidHttpSession httpSession(m_xContext);
         httpSession.setAccessToken(m_aAccessToken);
         httpSession.setWebId(m_aWebId);
-        
+
         // Create container using Solid protocol
         bool bSuccess = httpSession.createContainerAt(rEnv.m_aRequestURI);
         if (!bSuccess)
         {
             throw SolidRequestException("Failed to create container", SC_INTERNAL_SERVER_ERROR);
         }
-        
+
     }
     catch (const uno::Exception& e)
     {
@@ -192,15 +192,15 @@ void SolidSession::HEAD(SolidRequestEnvironment& rEnv)
         SolidHttpSession httpSession(m_xContext);
         httpSession.setAccessToken(m_aAccessToken);
         httpSession.setWebId(m_aWebId);
-        
+
         // Perform HEAD request to get resource metadata
         OUString sContentType;
         sal_Int64 nSize;
         httpSession.httpHEAD(rEnv.m_aRequestURI, sContentType, nSize);
-        
+
         // Store metadata for caller (would typically be in response headers)
         // Note: In complete implementation, would populate rEnv with metadata
-        
+
     }
     catch (const uno::Exception& e)
     {
@@ -208,5 +208,5 @@ void SolidSession::HEAD(SolidRequestEnvironment& rEnv)
     }
 }
 
-} // namespace libreoffice
 } // namespace solid
+} // namespace libreoffice

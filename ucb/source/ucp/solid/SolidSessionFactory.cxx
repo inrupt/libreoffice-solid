@@ -12,7 +12,7 @@
 
 using namespace com::sun::star;
 
-namespace solid { namespace libreoffice {
+namespace libreoffice { namespace solid {
 
 SolidSessionFactory::SolidSessionFactory() {}
 
@@ -27,7 +27,7 @@ rtl::Reference<SolidSession> SolidSessionFactory::createSession(
     return new SolidSession(nullSession, rURL, rxContext);
 }
 
-} // namespace libreoffice
 } // namespace solid
+} // namespace libreoffice
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

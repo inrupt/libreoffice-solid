@@ -20,7 +20,7 @@ using rtl::OUString;
 using rtl::OString;
 namespace css = com::sun::star;
 
-namespace solid { namespace libreoffice
+namespace libreoffice { namespace solid
 {
 
 /**
@@ -31,12 +31,12 @@ class SolidInputStream : public cppu::WeakImplHelper2<css::io::XInputStream, css
 private:
     css::uno::Sequence<sal_Int8> m_aData;
     sal_Int32 m_nPos;
-    
+
 public:
     explicit SolidInputStream(const OString& data);
     explicit SolidInputStream(const css::uno::Sequence<sal_Int8>& data);
     virtual ~SolidInputStream();
-    
+
     // XInputStream
     virtual sal_Int32 SAL_CALL readBytes(
         css::uno::Sequence<sal_Int8>& aData, sal_Int32 nBytesToRead) override;
@@ -45,7 +45,7 @@ public:
     virtual void SAL_CALL skipBytes(sal_Int32 nBytesToSkip) override;
     virtual sal_Int32 SAL_CALL available() override;
     virtual void SAL_CALL closeInput() override;
-    
+
     // XSeekable
     virtual void SAL_CALL seek(sal_Int64 location) override;
     virtual sal_Int64 SAL_CALL getPosition() override;
@@ -53,4 +53,4 @@ public:
 };
 
 } // namespace libreoffice
-} // namespace solid
+} // namespace libreoffice

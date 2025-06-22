@@ -17,21 +17,21 @@ using namespace solid::libreoffice;
 bool SolidServiceDetector::isSolidUrl(const rtl::OUString& rUrl)
 {
     INetURLObject aUrl(rUrl);
-    
+
     // Check for solid:// protocol
-    if (aUrl.GetProtocol() == INetProtocol::Generic && 
+    if (aUrl.GetProtocol() == INetProtocol::Generic &&
         rUrl.startsWithIgnoreAsciiCase("solid://"))
     {
         return true;
     }
-    
+
     // Check for https://storage.inrupt.com URLs
     if (aUrl.GetProtocol() == INetProtocol::Https &&
         aUrl.GetHost().equalsIgnoreAsciiCase("storage.inrupt.com"))
     {
         return true;
     }
-    
+
     return false;
 }
 
@@ -41,7 +41,7 @@ rtl::OUString SolidServiceDetector::getServiceType(const rtl::OUString& rUrl)
     {
         return rtl::OUString("Solid");
     }
-    
+
     return rtl::OUString();
 }
 
@@ -53,7 +53,7 @@ rtl::OUString SolidServiceDetector::normalizeUrl(const rtl::OUString& rUrl)
         rtl::OUString sPodId = rUrl.copy(8); // Remove "solid://"
         return rtl::OUString("https://storage.inrupt.com/") + sPodId;
     }
-    
+
     return rUrl;
 }
 

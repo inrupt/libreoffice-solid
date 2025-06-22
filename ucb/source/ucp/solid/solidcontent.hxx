@@ -19,7 +19,7 @@
 
 using rtl::OUString;
 
-namespace solid { namespace libreoffice {
+namespace libreoffice { namespace solid {
 
 class ContentProvider;
 
@@ -52,12 +52,12 @@ public:
     virtual css::uno::Reference<css::ucb::XContentIdentifier> SAL_CALL getIdentifier() override;
     virtual OUString SAL_CALL getContentType() override;
 
-    // Non-interface methods  
+    // Non-interface methods
     bool initResourceAccess();
     bool exchangeIdentity(const css::uno::Reference<css::ucb::XContentIdentifier>& xNewId);
 };
 
 } // namespace libreoffice
-} // namespace solid
+} // namespace libreoffice
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

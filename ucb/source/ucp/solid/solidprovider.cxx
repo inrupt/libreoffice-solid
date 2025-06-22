@@ -25,7 +25,7 @@
 #include "SolidSessionFactory.hxx"
 
 using namespace com::sun::star;
-using namespace solid::libreoffice;
+using namespace libreoffice::solid;
 using rtl::OUString;
 
 // Simple ContentIdentifier implementation
@@ -131,25 +131,25 @@ uno::Reference< ucb::XContent > SAL_CALL
 ContentProvider::queryContent(
         const uno::Reference< ucb::XContentIdentifier >& Identifier )
 {
-    SAL_WARN("ucb.ucp.solid", "SolidContentProvider::queryContent called with URL: " 
+    SAL_WARN("ucb.ucp.solid", "SolidContentProvider::queryContent called with URL: "
              << Identifier->getContentIdentifier());
-    
+
     // Check URL scheme...
     const OUString aScheme
         = Identifier->getContentProviderScheme().toAsciiLowerCase();
-    
-    
+
+
     // Only accept vnd-solid and vnd-solids schemes
     bool bIsSolidScheme = (aScheme == SOLID_URL_SCHEME || aScheme == SOLIDS_URL_SCHEME);
-    
+
     SAL_WARN("ucb.ucp.solid", "URL scheme: " << aScheme << " checking against vnd-solid schemes");
-    
+
     if (!bIsSolidScheme)
     {
         SAL_WARN("ucb.ucp.solid", "Unsupported scheme: " << aScheme << " - only vnd-solid and vnd-solids are supported");
         throw ucb::IllegalIdentifierException();
     }
-    
+
 
     // Convert vnd-solid:// URL to canonical form and create new identifier
     OUString aURL = Identifier->getContentIdentifier();
@@ -201,7 +201,7 @@ OUString ContentProvider::convertVndSolidToHttps( const OUString & rVndSolidUrl 
 {
     // Convert vnd-solid://host/path to https://host/path
     // Convert vnd-solids://host/path to https://host/path (both use HTTPS)
-    
+
     if (rVndSolidUrl.startsWithIgnoreAsciiCase("vnd-solid://"))
     {
         return "https://" + rVndSolidUrl.copy(12); // Remove "vnd-solid://"
@@ -210,7 +210,7 @@ OUString ContentProvider::convertVndSolidToHttps( const OUString & rVndSolidUrl 
     {
         return "https://" + rVndSolidUrl.copy(13); // Remove "vnd-solids://"
     }
-    
+
     // Return unchanged if not a vnd-solid URL
     return rVndSolidUrl;
 }
@@ -220,7 +220,7 @@ ucb_solid_ContentProvider_get_implementation(
     css::uno::XComponentContext* context , css::uno::Sequence<css::uno::Any> const&)
 {
     css::uno::Reference<css::uno::XComponentContext> xContext(context);
-    rtl::Reference<solid::libreoffice::ContentProvider> xProvider = new solid::libreoffice::ContentProvider(xContext);
+    rtl::Reference<libreoffice::solid::ContentProvider> xProvider = new libreoffice::solid::ContentProvider(xContext);
     return static_cast<css::uno::XInterface*>(xProvider.get());
 }
 

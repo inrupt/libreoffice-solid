@@ -18,7 +18,7 @@
 #include <cppuhelper/implbase3.hxx>
 #include "SolidSessionFactory.hxx"
 
-namespace solid { namespace libreoffice {
+namespace libreoffice { namespace solid {
 
 // UNO service name for the provider. This name will be used by the UCB to
 // create instances of the provider.
@@ -64,19 +64,20 @@ public:
     // Non-interface methods.
     bool getProperty( const OUString & rPropName,
                       css::beans::Property & rProp );
-                      
+
     rtl::Reference< SolidSessionFactory > getSolidSessionFactory()
-        { 
+        {
             if (!m_xSolidSessionFactory.is())
                 m_xSolidSessionFactory = new SolidSessionFactory();
-            return m_xSolidSessionFactory; 
+            return m_xSolidSessionFactory;
         }
-        
+
 private:
     // Convert vnd-solid:// URLs to https:// for Solid protocol communication
     OUString convertVndSolidToHttps( const OUString & rVndSolidUrl ) const;
 };
 
-}
+} // namespace solid
+} // namespace libreoffice
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

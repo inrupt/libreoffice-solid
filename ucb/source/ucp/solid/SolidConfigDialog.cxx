@@ -14,7 +14,7 @@
 #include <tools/urlobj.hxx>
 
 using namespace com::sun::star;
-using namespace solid::libreoffice;
+using namespace libreoffice::solid;
 
 SolidConfigDialog::SolidConfigDialog(weld::Window* pParent)
     : weld::GenericDialogController(pParent, "modules/ucb/ui/SolidConfigDialog.ui", "SolidConfigDialog")

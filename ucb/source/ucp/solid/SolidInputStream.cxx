@@ -16,7 +16,7 @@ using namespace css;
 using namespace css::uno;
 using namespace css::io;
 
-namespace solid { namespace libreoffice
+namespace libreoffice { namespace solid
 {
 
 SolidInputStream::SolidInputStream(const OString& data)
@@ -43,14 +43,14 @@ sal_Int32 SAL_CALL SolidInputStream::readBytes(uno::Sequence<sal_Int8>& aData, s
 {
     sal_Int32 nAvailable = m_aData.getLength() - m_nPos;
     sal_Int32 nRead = std::min(nBytesToRead, nAvailable);
-    
+
     aData.realloc(nRead);
     if (nRead > 0)
     {
         std::memcpy(aData.getArray(), m_aData.getConstArray() + m_nPos, nRead);
         m_nPos += nRead;
     }
-    
+
     return nRead;
 }
 
@@ -94,4 +94,4 @@ sal_Int64 SAL_CALL SolidInputStream::getLength()
 }
 
 } // namespace libreoffice
-} // namespace solid
+} // namespace libreoffice

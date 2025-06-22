@@ -17,7 +17,7 @@
 
 using namespace rtl;
 
-namespace solid { namespace libreoffice
+namespace libreoffice { namespace solid
 {
 
 /**
@@ -35,39 +35,39 @@ private:
     std::condition_variable m_condition;
     bool m_bCodeReceived;
     bool m_bStopped;
-    
+
 public:
     SolidCallbackServer();
     ~SolidCallbackServer();
-    
+
     /**
      * Start the callback server on an available port.
      * @return The port number the server is listening on
      */
     sal_uInt16 start();
-    
+
     /**
      * Wait for the authorization code to be received.
      * @param timeoutMs Maximum time to wait in milliseconds
      * @return The authorization code, or empty string if timeout/error
      */
     OUString waitForCode(sal_uInt32 timeoutMs);
-    
+
     /**
      * Stop the server and clean up resources.
      */
     void stop();
-    
+
     /**
      * Get the port the server is listening on.
      */
     sal_uInt16 getPort() const { return m_nPort; }
-    
+
     /**
      * Generate a random state parameter for CSRF protection.
      */
     static OUString generateState();
-    
+
 private:
     void serverLoop();
     void handleRequest(const OString& request, int clientSocket);
@@ -77,5 +77,5 @@ private:
     sal_uInt16 findAvailablePort();
 };
 
-} // namespace libreoffice
 } // namespace solid
+} // namespace libreoffice

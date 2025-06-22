@@ -20,7 +20,7 @@ namespace css = com::sun::star;
 #include <com/sun/star/uno/XComponentContext.hpp>
 #include <com/sun/star/uno/Reference.hxx>
 
-namespace solid { namespace libreoffice
+namespace libreoffice { namespace solid
 {
     class SolidSession;
 
@@ -36,6 +36,6 @@ namespace solid { namespace libreoffice
     };
 
 } // namespace libreoffice
-} // namespace solid
+} // namespace libreoffice
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

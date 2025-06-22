@@ -32,7 +32,7 @@ namespace com::sun::star::ucb {
     struct Lock;
 }
 
-namespace solid { namespace libreoffice
+namespace libreoffice { namespace solid
 {
     class SolidSession;
     class SolidSessionFactory;
@@ -163,7 +163,7 @@ namespace solid { namespace libreoffice
         void initialize();
     };
 
-} // namespace libreoffice
 } // namespace solid
+} // namespace libreoffice
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

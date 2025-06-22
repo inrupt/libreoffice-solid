@@ -34,7 +34,7 @@ namespace com::sun::star::ucb {
     struct Lock;
 }
 
-namespace solid { namespace libreoffice {
+namespace libreoffice { namespace solid {
 
 class SolidSession; // Forward declaration
 
@@ -134,7 +134,7 @@ public:
     };
 
     // Solid-specific methods
-    
+
     /// @throws SolidRequestException
     void authenticate( const css::uno::Reference< css::task::XInteractionHandler >& xIH );
 
@@ -202,6 +202,6 @@ private:
 };
 
 } // namespace libreoffice
-} // namespace solid
+} // namespace libreoffice
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

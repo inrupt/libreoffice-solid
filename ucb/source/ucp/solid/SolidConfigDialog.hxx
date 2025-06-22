@@ -12,7 +12,7 @@
 #include <vcl/weld.hxx>
 #include <rtl/ustring.hxx>
 
-namespace solid { namespace libreoffice {
+namespace libreoffice { namespace solid {
 
 struct SolidServiceConfig
 {
@@ -49,6 +49,6 @@ public:
 };
 
 } // namespace libreoffice
-} // namespace solid
+} // namespace libreoffice
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */
