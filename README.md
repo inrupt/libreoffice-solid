@@ -73,21 +73,6 @@ This repo contains the source code for a LibreOffice UCP that provides native So
    make -j$(nproc)
    ```
 
-### Quick Installation (Copy from working build)
-
-If you have the files from `/home/davi/code/libreoffice-25.2.4.3`:
-
-```bash
-# Copy all Solid UCP files at once
-cp -r /path/to/working/ucb/source/ucp/solid/ ucb/source/ucp/
-cp /path/to/working/ucb/Library_ucpsolid.mk ucb/
-cp /path/to/working/officecfg/registry/data/org/openoffice/ucb/Configuration.xcu \
-   officecfg/registry/data/org/openoffice/ucb/
-cp /path/to/working/fpicker/source/office/RemoteFilesDialog.cxx \
-   fpicker/source/office/
-cp /path/to/working/svtools/source/dialogs/ServerDetailsControls.* \
-   svtools/source/dialogs/
-```
 
 ## How It Works
 
