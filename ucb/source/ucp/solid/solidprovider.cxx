@@ -139,53 +139,28 @@ ContentProvider::queryContent(
         = Identifier->getContentProviderScheme().toAsciiLowerCase();
     
     
-    // Accept both solid:// schemes and https:// URLs for Solid pods
+    // Only accept vnd-solid and vnd-solids schemes
     bool bIsSolidScheme = (aScheme == SOLID_URL_SCHEME || aScheme == SOLIDS_URL_SCHEME);
-    bool bIsSolidPodUrl = false;
     
-    SAL_WARN("ucb.ucp.solid", "URL scheme: " << aScheme << " checking against solid schemes");
+    SAL_WARN("ucb.ucp.solid", "URL scheme: " << aScheme << " checking against vnd-solid schemes");
     
-    if (aScheme == "https" || aScheme == "http")
+    if (!bIsSolidScheme)
     {
-        // Check if this is a Solid pod URL based on domain
-        OUString aURL = Identifier->getContentIdentifier();
-        OUString sHost;
-        sal_Int32 nSchemeEnd = aURL.indexOf("://");
-        if (nSchemeEnd != -1) {
-            sal_Int32 nHostStart = nSchemeEnd + 3;
-            sal_Int32 nHostEnd = aURL.indexOf("/", nHostStart);
-            if (nHostEnd == -1) nHostEnd = aURL.getLength();
-            sHost = aURL.copy(nHostStart, nHostEnd - nHostStart);
-        }
-        
-        SAL_WARN("ucb.ucp.solid", "SolidContentProvider::queryContent - URL: " 
-                 << Identifier->getContentIdentifier() << " Host: " << sHost);
-        
-        // Detect known Solid pod domains (following NextFM pattern)
-        bIsSolidPodUrl = sHost.indexOf("storage.inrupt.com") != -1 ||
-                        sHost.endsWith(".solidcommunity.net") ||
-                        sHost.endsWith(".inrupt.net") ||
-                        sHost.indexOf("storage.") == 0; // Generic storage. pattern
-        
-        SAL_WARN("ucb.ucp.solid", "SolidContentProvider - Domain check result: " << (bIsSolidPodUrl ? "MATCH" : "NO MATCH"));
-                        
-    }
-    
-    if (!bIsSolidScheme && !bIsSolidPodUrl)
-    {
+        SAL_WARN("ucb.ucp.solid", "Unsupported scheme: " << aScheme << " - only vnd-solid and vnd-solids are supported");
         throw ucb::IllegalIdentifierException();
     }
     
 
-    // Normalize URL and create new identifier.
+    // Convert vnd-solid:// URL to canonical form and create new identifier
     OUString aURL = Identifier->getContentIdentifier();
+    OUString aCanonicalURL = convertVndSolidToHttps(aURL);
 
     uno::Reference< ucb::XContentIdentifier > xCanonicId;
     bool bNewId = false;
 
-    if ( aURL != Identifier->getContentIdentifier() )
+    if ( aCanonicalURL != aURL )
     {
-        xCanonicId = new ContentIdentifier( aURL );
+        xCanonicId = new ContentIdentifier( aCanonicalURL );
         bNewId = true;
     }
     else
@@ -220,6 +195,24 @@ bool ContentProvider::getProperty( const OUString & rPropName, beans::Property &
     (void)rPropName;
     (void)rProp;
     return false;
+}
+
+OUString ContentProvider::convertVndSolidToHttps( const OUString & rVndSolidUrl ) const
+{
+    // Convert vnd-solid://host/path to https://host/path
+    // Convert vnd-solids://host/path to https://host/path (both use HTTPS)
+    
+    if (rVndSolidUrl.startsWithIgnoreAsciiCase("vnd-solid://"))
+    {
+        return "https://" + rVndSolidUrl.copy(12); // Remove "vnd-solid://"
+    }
+    else if (rVndSolidUrl.startsWithIgnoreAsciiCase("vnd-solids://"))
+    {
+        return "https://" + rVndSolidUrl.copy(13); // Remove "vnd-solids://"
+    }
+    
+    // Return unchanged if not a vnd-solid URL
+    return rVndSolidUrl;
 }
 
 extern "C" SAL_DLLPUBLIC_EXPORT css::uno::XInterface*

@@ -27,8 +27,8 @@ namespace solid { namespace libreoffice {
 // URL scheme. This is the scheme the provider will be able to create
 // contents for. The UCB will select the provider ( i.e. in order to create
 // contents ) according to this scheme.
-#define SOLID_URL_SCHEME              "solid"
-#define SOLIDS_URL_SCHEME             "solids"
+#define SOLID_URL_SCHEME              "vnd-solid"
+#define SOLIDS_URL_SCHEME             "vnd-solids"
 
 #define SOLID_CONTENT_TYPE            "application/solid-content"
 #define SOLID_COLLECTION_TYPE         "application/solid-collection"
@@ -71,6 +71,10 @@ public:
                 m_xSolidSessionFactory = new SolidSessionFactory();
             return m_xSolidSessionFactory; 
         }
+        
+private:
+    // Convert vnd-solid:// URLs to https:// for Solid protocol communication
+    OUString convertVndSolidToHttps( const OUString & rVndSolidUrl ) const;
 };
 
 }
