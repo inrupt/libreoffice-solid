@@ -178,7 +178,7 @@ void SolidCallbackServer::serverLoop()
                 if (bytesRead > 0)
                 {
                     OString request(buffer, bytesRead);
-                    handleRequest(request);
+                    handleRequest(request, clientSocket);
                 }
                 
 #ifdef _WIN32
@@ -198,7 +198,7 @@ void SolidCallbackServer::serverLoop()
 #endif
 }
 
-void SolidCallbackServer::handleRequest(const OString& request)
+void SolidCallbackServer::handleRequest(const OString& request, int clientSocket)
 {
     
     // Extract authorization code and state from query parameters
@@ -236,14 +236,13 @@ void SolidCallbackServer::handleRequest(const OString& request)
         sResponse = generateSuccessPage();
     }
     
-    // Send HTTP response (simplified)
+    // Send HTTP response
     OString sHttpResponse = "HTTP/1.1 200 OK\r\n"
                            "Content-Type: text/html; charset=utf-8\r\n"
                            "Connection: close\r\n\r\n" +
                            OUStringToOString(sResponse, RTL_TEXTENCODING_UTF8);
     
-    // Note: In complete implementation, would send this response back to client
-    // For now, just log it
+    send(clientSocket, sHttpResponse.getStr(), sHttpResponse.getLength(), 0);
 }
 
 OUString SolidCallbackServer::extractParameterValue(const OString& request, const OString& paramName)

@@ -44,7 +44,7 @@ sal_Bool SAL_CALL SolidAuthTest::supportsService(const OUString& ServiceName)
 uno::Sequence<OUString> SAL_CALL SolidAuthTest::getSupportedServiceNames()
 {
     uno::Sequence<OUString> aSeq(1);
-    aSeq[0] = OUString("com.sun.star.SolidAuthTest");
+    aSeq.getArray()[0] = OUString("com.sun.star.SolidAuthTest");
     return aSeq;
 }
 
@@ -124,7 +124,7 @@ extern "C" SAL_DLLPUBLIC_EXPORT void* component_getFactory(
             static_cast<css::lang::XMultiServiceFactory*>(serviceManager), css::uno::UNO_QUERY);
         
         css::uno::Sequence<rtl::OUString> aSeq(1);
-        aSeq[0] = rtl::OUString("com.sun.star.SolidAuthTest");
+        aSeq.getArray()[0] = rtl::OUString("com.sun.star.SolidAuthTest");
         
         factory = cppu::createSingleFactory(
             msf,

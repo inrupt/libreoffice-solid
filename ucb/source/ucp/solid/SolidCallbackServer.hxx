@@ -70,7 +70,7 @@ public:
     
 private:
     void serverLoop();
-    void handleRequest(const OString& request);
+    void handleRequest(const OString& request, int clientSocket);
     OUString extractParameterValue(const OString& request, const OString& paramName);
     OUString generateSuccessPage();
     OUString generateErrorPage(const OUString& error);
