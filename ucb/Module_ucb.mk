@@ -21,6 +21,7 @@ $(eval $(call gb_Module_add_targets,ucb,\
 	Library_ucphier1 \
 	Library_ucpimage \
 	Library_ucppkg1 \
+	Library_ucpsolid \
 	Library_ucptdoc1 \
 ))
 

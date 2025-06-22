@@ -201,6 +201,60 @@ IMPL_LINK( DavDetailsContainer, ToggledDavsHdl, weld::Toggleable&, rCheckBox, vo
     notifyChange( );
 }
 
+SolidDetailsContainer::SolidDetailsContainer(PlaceEditDialog* pDialog)
+    : HostDetailsContainer(pDialog, 443, u"https"_ustr)
+{
+    set_visible( false );
+}
+
+void SolidDetailsContainer::set_visible( bool bShow )
+{
+    HostDetailsContainer::set_visible( bShow );
+
+    // Hide credentials controls for Solid since it uses OAuth
+    m_pDialog->m_xFTUsernameLabel->set_visible(!bShow);
+    m_pDialog->m_xEDUsername->set_visible(!bShow);
+    m_pDialog->m_xFTPasswordLabel->set_visible(!bShow);
+    m_pDialog->m_xEDPassword->set_visible(!bShow);
+    m_pDialog->m_xCBPassword->set_visible(!bShow);
+
+    // Hide secure connection checkbox - Solid is always HTTPS
+    m_pDialog->m_xCBDavs->set_visible(false);
+}
+
+INetURLObject SolidDetailsContainer::getUrl( )
+{
+    // Get the standard HTTPS URL from parent class
+    INetURLObject aHostUrl = HostDetailsContainer::getUrl();
+
+    // Transform https:// to vnd-solid:// for UCB routing
+    if (aHostUrl.GetProtocol() == INetProtocol::Https || aHostUrl.GetProtocol() == INetProtocol::Http)
+    {
+        OUString sHttpsUrl = aHostUrl.GetMainURL(INetURLObject::DecodeMechanism::NONE);
+        OUString sVndSolidUrl;
+
+        if (sHttpsUrl.startsWith("https://"))
+        {
+            sVndSolidUrl = "vnd-solid://" + sHttpsUrl.copy(8); // Remove "https://"
+        }
+        else if (sHttpsUrl.startsWith("http://"))
+        {
+            sVndSolidUrl = "vnd-solid://" + sHttpsUrl.copy(7); // Remove "http://"
+        }
+
+        INetURLObject aVndSolidUrl(sVndSolidUrl);
+        return aVndSolidUrl;
+    }
+
+    return aHostUrl;
+}
+
+bool SolidDetailsContainer::verifyScheme( const OUString& rScheme )
+{
+    // Solid pods use HTTPS URLs in user input, but we convert to vnd-solid internally
+    return rScheme == "https://" || rScheme == "vnd-solid://";
+}
+
 SmbDetailsContainer::SmbDetailsContainer(PlaceEditDialog* pDialog)
     : DetailsContainer(pDialog)
 {

@@ -113,6 +113,19 @@ class SmbDetailsContainer final : public DetailsContainer
         virtual void set_visible( bool bShow ) override;
 };
 
+class SolidDetailsContainer final : public HostDetailsContainer
+{
+    public:
+        SolidDetailsContainer(PlaceEditDialog* pDialog);
+
+        virtual void set_visible( bool bShow ) override;
+        virtual INetURLObject getUrl( ) override;
+        virtual bool enableUserCredentials( ) override { return false; };
+
+    private:
+        virtual bool verifyScheme( const OUString& rScheme ) override;
+};
+
 class CmisDetailsContainer final : public DetailsContainer
 {
     private:

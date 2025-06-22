@@ -202,6 +202,17 @@
                 <value/>
               </prop>
             </node>
+            <node oor:name="Provider98" oor:op="replace">
+              <prop oor:name="ServiceName">
+                <value>com.sun.star.comp.SolidContentProvider</value>
+              </prop>
+              <prop oor:name="URLTemplate">
+                <value>vnd-solid</value>
+              </prop>
+              <prop oor:name="Arguments">
+                <value/>
+              </prop>
+            </node>
             <node oor:name="Provider900" oor:op="replace">
               <prop oor:name="ServiceName">
                 <value/>

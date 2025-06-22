@@ -217,7 +217,13 @@ static OUString lcl_GetServiceType( const ServicePtr& pService )
         case INetProtocol::Https:
             return u"WebDAV"_ustr;
         case INetProtocol::Generic:
+        {
+            // Check if this is a Solid Pod URL with vnd-solid scheme
+            if (pService->GetUrlObject().GetMainURL(INetURLObject::DecodeMechanism::NONE).startsWith("vnd-solid://"))
+                return u"Solid Pod"_ustr;
+
             return u"SSH"_ustr;
+        }
         default:
             return OUString();
     }

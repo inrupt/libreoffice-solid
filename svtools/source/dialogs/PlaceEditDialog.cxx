@@ -218,11 +218,16 @@ void PlaceEditDialog::InitDetails( )
     xSshDetails->setChangeHdl( LINK( this, PlaceEditDialog, EditHdl ) );
     m_aDetailsContainers.push_back(xSshDetails);
 
+    // Create Solid details control
+    std::shared_ptr<DetailsContainer> xSolidDetails(std::make_shared<SolidDetailsContainer>(this));
+    xSolidDetails->setChangeHdl( LINK( this, PlaceEditDialog, EditHdl ) );
+    m_aDetailsContainers.push_back(xSolidDetails);
+
     // Remove Windows Share entry from dialog on Windows OS, where it's non-functional
 #if defined(_WIN32)
     // nPos is the position of first item that is pre-defined in svtools/uiconfig/ui/placeedit.ui,
-    // after other CMIS types were inserted
-    m_xLBServerType->remove(nPos + 2);
+    // after other CMIS types were inserted. Windows Share is now at position 3 (WebDAV=0, SSH=1, Solid=2, Windows Share=3)
+    m_xLBServerType->remove(nPos + 3);
 #else
     // Create Windows Share control
     std::shared_ptr<DetailsContainer> xSmbDetails(std::make_shared<SmbDetailsContainer>(this));

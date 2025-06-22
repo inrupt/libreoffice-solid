@@ -100,7 +100,7 @@ public:
         const css::uno::Reference< css::util::XModifyListener >& aListener ) override;
     virtual void SAL_CALL removeModifyListener(
         const css::uno::Reference< css::util::XModifyListener >& aListener ) override;
-        
+
     virtual rtl::Reference<ChartType> cloneChartType() const = 0;
 
     void addDataSeries(
