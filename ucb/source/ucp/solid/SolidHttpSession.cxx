@@ -46,6 +46,8 @@ SolidHttpSession::~SolidHttpSession()
 // Authentication following NextFM authentication.js patterns
 bool SolidHttpSession::authenticate(const OUString& rIssuer)
 {
+    (void)rIssuer; // Currently unused, may be used for explicit issuer override
+    
     try
     {
         // Step 1: Discover OIDC issuer from pod (following NextFM)
@@ -228,7 +230,6 @@ bool SolidHttpSession::createContainerAt(const OUString& rContainerUrl)
     {
         // Create container using PUT with text/turtle content-type
         // (following createContainerAt pattern from @inrupt/solid-client)
-        OUString sEmptyContainer = "";
         
         uno::Reference<io::XInputStream> xData; // Empty stream for container creation
         httpPUT(rContainerUrl, xData, "text/turtle");
@@ -399,6 +400,7 @@ uno::Reference<io::XInputStream> SolidHttpSession::executeHttpRequest(
     const OUString& rContentType,
     const uno::Reference<ucb::XCommandEnvironment>& rEnv)
 {
+    (void)rEnv; // Command environment currently unused
     
     CURL* curl = curl_easy_init();
     if (!curl)

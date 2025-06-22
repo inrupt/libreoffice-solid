@@ -10,9 +10,6 @@
 #pragma once
 
 #include <vcl/weld.hxx>
-#include <vcl/button.hxx>
-#include <vcl/edit.hxx>
-#include <vcl/fixed.hxx>
 #include <rtl/ustring.hxx>
 
 namespace solid { namespace libreoffice {
@@ -26,27 +23,29 @@ struct SolidServiceConfig
     bool rememberCredentials = true;
 };
 
-class SolidConfigDialog : public ModalDialog
+class SolidConfigDialog
 {
 private:
-    VclPtr<Edit> m_pServiceNameEdit;
-    VclPtr<Edit> m_pPodUrlEdit;
-    VclPtr<Edit> m_pWebIdEdit;
-    VclPtr<CheckBox> m_pDpopCheck;
-    VclPtr<CheckBox> m_pRememberCheck;
-    VclPtr<PushButton> m_pTestButton;
-    VclPtr<OKButton> m_pOkButton;
-    VclPtr<CancelButton> m_pCancelButton;
+    std::unique_ptr<weld::Dialog> m_xDialog;
+    std::unique_ptr<weld::Entry> m_xServiceNameEdit;
+    std::unique_ptr<weld::Entry> m_xPodUrlEdit;
+    std::unique_ptr<weld::Entry> m_xWebIdEdit;
+    std::unique_ptr<weld::CheckButton> m_xDpopCheck;
+    std::unique_ptr<weld::CheckButton> m_xRememberCheck;
+    std::unique_ptr<weld::Button> m_xTestButton;
+    std::unique_ptr<weld::Button> m_xOkButton;
+    std::unique_ptr<weld::Button> m_xCancelButton;
     
-    DECL_LINK(TestConnectionHdl, Button*, void);
-    DECL_LINK(OkHdl, Button*, void);
-    DECL_LINK(CancelHdl, Button*, void);
-    DECL_LINK(UrlModifyHdl, Edit&, void);
+    DECL_LINK(TestConnectionHdl, weld::Button&, void);
+    DECL_LINK(OkHdl, weld::Button&, void);
+    DECL_LINK(CancelHdl, weld::Button&, void);
+    DECL_LINK(UrlModifyHdl, weld::Entry&, void);
 
 public:
-    explicit SolidConfigDialog(vcl::Window* pParent);
-    virtual ~SolidConfigDialog() override;
-    virtual void dispose() override;
+    explicit SolidConfigDialog(weld::Window* pParent);
+    virtual ~SolidConfigDialog();
+    
+    short run() { return m_xDialog->run(); }
     
     SolidServiceConfig getServiceConfig() const;
     void setServiceConfig(const SolidServiceConfig& config);
