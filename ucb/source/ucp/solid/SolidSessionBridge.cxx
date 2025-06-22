@@ -119,7 +119,7 @@ void SolidSession::PUT(const uno::Reference<io::XInputStream>& xInputStream,
 
 void SolidSession::POST(const uno::Reference<io::XInputStream>& xInputStream,
                         const OUString& rContentType,
-                        const OUString& rReferer,
+                        const OUString& /*rReferer*/,
                         SolidRequestEnvironment& rEnv)
 {
     try
