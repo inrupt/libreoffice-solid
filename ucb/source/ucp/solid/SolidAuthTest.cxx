@@ -90,7 +90,7 @@ bool SolidAuthTest::testDPoPAuthentication(const OUString& podUrl)
 static css::uno::Reference<css::uno::XInterface> create_SolidAuthTest(
     const css::uno::Reference<css::lang::XMultiServiceFactory>&)
 {
-    return static_cast<css::lang::XServiceInfo*>(new solid::libreoffice::SolidAuthTest(css::uno::Reference<css::uno::XComponentContext>()));
+    return static_cast<css::lang::XServiceInfo*>(new libreoffice::solid::SolidAuthTest(css::uno::Reference<css::uno::XComponentContext>()));
 }
 
 extern "C" SAL_DLLPUBLIC_EXPORT sal_Bool component_writeInfo(

@@ -24,10 +24,11 @@
 #include <cppuhelper/queryinterface.hxx>
 #include <cppuhelper/typeprovider.hxx>
 #include <osl/mutex.hxx>
+#include <sal/log.hxx>
 #include "SolidOAuth.hxx"
 
 using namespace css;
-using namespace solid::libreoffice;
+using namespace libreoffice::solid;
 
 Content::Content(const uno::Reference<uno::XComponentContext>& rxContext,
                 ContentProvider* pProvider,
@@ -83,7 +84,7 @@ OUString SAL_CALL Content::getImplementationName()
 css::uno::Sequence<OUString> SAL_CALL Content::getSupportedServiceNames()
 {
     css::uno::Sequence<OUString> aSeq(1);
-    aSeq[0] = OUString("com.sun.star.ucb.SolidContent");
+    aSeq.getArray()[0] = OUString("com.sun.star.ucb.SolidContent");
     return aSeq;
 }
 
@@ -93,15 +94,86 @@ css::uno::Reference<css::ucb::XContentIdentifier> SAL_CALL Content::getIdentifie
     return m_xIdentifier;
 }
 
+sal_Bool SAL_CALL Content::supportsService(const OUString& ServiceName)
+{
+    const css::uno::Sequence<OUString> aServiceNames = getSupportedServiceNames();
+    for (const auto& rName : aServiceNames)
+    {
+        if (rName == ServiceName)
+            return true;
+    }
+    return false;
+}
+
 OUString SAL_CALL Content::getContentType()
 {
     return SOLID_CONTENT_TYPE;
 }
 
+void SAL_CALL Content::addContentEventListener(const css::uno::Reference<css::ucb::XContentEventListener>& /*Listener*/)
+{
+    // TODO: Implement content event listener management
+}
+
+void SAL_CALL Content::removeContentEventListener(const css::uno::Reference<css::ucb::XContentEventListener>& /*Listener*/)
+{
+    // TODO: Implement content event listener management
+}
+
 // Non-interface methods
 bool Content::initResourceAccess()
 {
-    return true; // Simplified for now
+    try
+    {
+        // Get the vnd-solid URL
+        OUString sVndSolidUrl = m_xIdentifier->getContentIdentifier();
+
+        // Convert to HTTPS for authentication
+        OUString sHttpsUrl;
+        if (sVndSolidUrl.startsWithIgnoreAsciiCase("vnd-solid://"))
+        {
+            sHttpsUrl = "https://" + sVndSolidUrl.copy(12);
+        }
+        else if (sVndSolidUrl.startsWithIgnoreAsciiCase("vnd-solids://"))
+        {
+            sHttpsUrl = "https://" + sVndSolidUrl.copy(13);
+        }
+        else
+        {
+            // Not a vnd-solid URL
+            return false;
+        }
+
+        // Create OAuth client and attempt authentication
+        SolidOAuthClient oauthClient(m_xContext);
+
+        // Check if we already have valid tokens
+        if (oauthClient.loadTokensFromConfig() && oauthClient.isAuthenticated())
+        {
+            SAL_INFO("ucb.ucp.solid", "Using existing valid tokens for " << sHttpsUrl.toUtf8());
+            return true;
+        }
+
+        // Trigger OAuth authentication flow
+        SAL_INFO("ucb.ucp.solid", "Initiating OAuth authentication for " << sHttpsUrl.toUtf8());
+        bool bAuthSuccess = oauthClient.authenticate(sHttpsUrl);
+
+        if (bAuthSuccess)
+        {
+            SAL_INFO("ucb.ucp.solid", "OAuth authentication successful for " << sHttpsUrl.toUtf8());
+            return true;
+        }
+        else
+        {
+            SAL_WARN("ucb.ucp.solid", "OAuth authentication failed for " << sHttpsUrl.toUtf8());
+            return false;
+        }
+    }
+    catch (const uno::Exception& e)
+    {
+        SAL_WARN("ucb.ucp.solid", "Exception during authentication: " << e.Message.toUtf8());
+        return false;
+    }
 }
 
 bool Content::exchangeIdentity(const css::uno::Reference<css::ucb::XContentIdentifier>& xNewId)
