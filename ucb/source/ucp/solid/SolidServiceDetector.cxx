@@ -12,7 +12,7 @@
 #include <tools/urlobj.hxx>
 
 using namespace com::sun::star;
-using namespace solid::libreoffice;
+using namespace libreoffice::solid;
 
 bool SolidServiceDetector::isSolidUrl(const rtl::OUString& rUrl)
 {

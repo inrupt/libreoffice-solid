@@ -27,7 +27,7 @@
 #include "SolidOAuth.hxx"
 
 using namespace css;
-using namespace solid::libreoffice;
+using namespace libreoffice::solid;
 
 Content::Content(const uno::Reference<uno::XComponentContext>& rxContext,
                 ContentProvider* pProvider,
