@@ -122,7 +122,57 @@ void SAL_CALL Content::removeContentEventListener(const css::uno::Reference<css:
 // Non-interface methods
 bool Content::initResourceAccess()
 {
-    return true; // Simplified for now
+    try
+    {
+        // Get the vnd-solid URL
+        OUString sVndSolidUrl = m_xIdentifier->getContentIdentifier();
+        
+        // Convert to HTTPS for authentication
+        OUString sHttpsUrl;
+        if (sVndSolidUrl.startsWithIgnoreAsciiCase("vnd-solid://"))
+        {
+            sHttpsUrl = "https://" + sVndSolidUrl.copy(12);
+        }
+        else if (sVndSolidUrl.startsWithIgnoreAsciiCase("vnd-solids://"))
+        {
+            sHttpsUrl = "https://" + sVndSolidUrl.copy(13);
+        }
+        else
+        {
+            // Not a vnd-solid URL
+            return false;
+        }
+        
+        // Create OAuth client and attempt authentication
+        SolidOAuthClient oauthClient(m_xContext);
+        
+        // Check if we already have valid tokens
+        if (oauthClient.loadTokensFromConfig() && oauthClient.isAuthenticated())
+        {
+            SAL_INFO("ucb.ucp.solid", "Using existing valid tokens for " << sHttpsUrl);
+            return true;
+        }
+        
+        // Trigger OAuth authentication flow
+        SAL_INFO("ucb.ucp.solid", "Initiating OAuth authentication for " << sHttpsUrl);
+        bool bAuthSuccess = oauthClient.authenticate(sHttpsUrl);
+        
+        if (bAuthSuccess)
+        {
+            SAL_INFO("ucb.ucp.solid", "OAuth authentication successful for " << sHttpsUrl);
+            return true;
+        }
+        else
+        {
+            SAL_WARN("ucb.ucp.solid", "OAuth authentication failed for " << sHttpsUrl);
+            return false;
+        }
+    }
+    catch (const uno::Exception& e)
+    {
+        SAL_WARN("ucb.ucp.solid", "Exception during authentication: " << e.Message);
+        return false;
+    }
 }
 
 bool Content::exchangeIdentity(const css::uno::Reference<css::ucb::XContentIdentifier>& xNewId)
