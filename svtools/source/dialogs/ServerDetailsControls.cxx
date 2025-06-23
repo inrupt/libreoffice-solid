@@ -268,10 +268,91 @@ INetURLObject SolidDetailsContainer::getUrl( )
     return INetURLObject(sVndSolidUrl);
 }
 
+bool SolidDetailsContainer::setUrl( const INetURLObject& rUrl )
+{
+    OUString sUrl = rUrl.GetMainURL(INetURLObject::DecodeMechanism::NONE);
+
+    // Check directly against the URL string since INetURLObject may not recognize vnd-solid scheme
+    if (!sUrl.startsWith("vnd-solid://") && !sUrl.startsWith("vnd-solids://"))
+        return false;
+
+    // Handle vnd-solid:// URLs
+    if (sUrl.startsWith("vnd-solid://"))
+    {
+        // Parse vnd-solid://host/podId format
+        OUString sRemainder = sUrl.copy(12); // Remove "vnd-solid://"
+
+        // Extract host and pod ID
+        sal_Int32 nSlashPos = sRemainder.indexOf('/');
+        OUString sHost, sPodId;
+
+        if (nSlashPos != -1)
+        {
+            sHost = sRemainder.copy(0, nSlashPos);
+            sPodId = sRemainder.copy(nSlashPos + 1);
+        }
+        else
+        {
+            sHost = sRemainder;
+        }
+
+        // Reconstruct the https:// pod URL for display in the host field
+        OUString sPodUrl = "https://" + sHost;
+        if (!sPodId.isEmpty())
+            sPodUrl += "/" + sPodId;
+
+        // Set the host field with the full pod URL (this is where user enters pod URL)
+        m_pDialog->m_xEDHost->set_text(sPodUrl);
+
+        // Keep the existing Client ID Document URL if already set, otherwise use default
+        if (m_pDialog->m_xEDRoot->get_text().trim().isEmpty())
+            m_pDialog->m_xEDRoot->set_text(u"https://login.inrupt.com/catalog/app/id"_ustr);
+
+        return true;
+    }
+
+    // Handle vnd-solids:// URLs (secure variant)
+    if (sUrl.startsWith("vnd-solids://"))
+    {
+        // Parse vnd-solids://host/podId format
+        OUString sRemainder = sUrl.copy(13); // Remove "vnd-solids://"
+
+        // Extract host and pod ID
+        sal_Int32 nSlashPos = sRemainder.indexOf('/');
+        OUString sHost, sPodId;
+
+        if (nSlashPos != -1)
+        {
+            sHost = sRemainder.copy(0, nSlashPos);
+            sPodId = sRemainder.copy(nSlashPos + 1);
+        }
+        else
+        {
+            sHost = sRemainder;
+        }
+
+        // Reconstruct the https:// pod URL for display in the host field
+        OUString sPodUrl = "https://" + sHost;
+        if (!sPodId.isEmpty())
+            sPodUrl += "/" + sPodId;
+
+        // Set the host field with the full pod URL
+        m_pDialog->m_xEDHost->set_text(sPodUrl);
+
+        // Keep the existing Client ID Document URL if already set, otherwise use default
+        if (m_pDialog->m_xEDRoot->get_text().trim().isEmpty())
+            m_pDialog->m_xEDRoot->set_text(u"https://login.inrupt.com/catalog/app/id"_ustr);
+
+        return true;
+    }
+
+    return false;
+}
+
 bool SolidDetailsContainer::verifyScheme( const OUString& rScheme )
 {
     // Solid pods use HTTPS URLs in user input, but we convert to vnd-solid internally
-    return rScheme == "https://" || rScheme == "vnd-solid://";
+    return rScheme == "https://" || rScheme == "vnd-solid://" || rScheme == "vnd-solids://";
 }
 
 SmbDetailsContainer::SmbDetailsContainer(PlaceEditDialog* pDialog)
