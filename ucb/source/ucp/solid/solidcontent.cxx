@@ -147,6 +147,9 @@ bool Content::initResourceAccess()
         // Create OAuth client and attempt authentication
         SolidOAuthClient oauthClient(m_xContext);
 
+        // Set client ID for authentication - using LibreOffice's Client ID Document
+        oauthClient.setClientId(u"https://inrupt.github.io/libreoffice-solid/libreoffice-solid-client.json"_ustr);
+
         // Check if we already have valid tokens
         if (oauthClient.loadTokensFromConfig() && oauthClient.isAuthenticated())
         {

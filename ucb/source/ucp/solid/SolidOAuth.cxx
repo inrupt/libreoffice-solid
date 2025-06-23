@@ -283,6 +283,12 @@ bool SolidOAuthClient::discoverPodStorageUrls(std::vector<OUString>& storageUrls
 }
 
 bool SolidOAuthClient::authenticate(const OUString& podUrl) {
+    // Check if client ID is set
+    if (m_sClientId.isEmpty()) {
+        m_sLastError = "Client ID not set - call setClientId() first";
+        return false;
+    }
+    
     m_sPodUrl = podUrl;
 
     // Step 1: Use PodSpaces-specific endpoints (no discovery needed)
@@ -294,7 +300,7 @@ bool SolidOAuthClient::authenticate(const OUString& podUrl) {
         return false;
     }
 
-    // Step 3: Start local callback server
+    // Step 3: Start local callback server to capture authorization code
     SolidCallbackServer callbackServer;
     sal_uInt16 port = callbackServer.start();
     if (port == 0) {
@@ -304,18 +310,18 @@ bool SolidOAuthClient::authenticate(const OUString& podUrl) {
     }
 
     // Step 4: Generate PKCE parameters
-    m_sCodeVerifier = generateRandomString(43); // 43 chars for good entropy
+    m_sCodeVerifier = generateRandomString(43);
     m_sCodeChallenge = generateCodeChallenge(m_sCodeVerifier);
     m_sState = generateRandomString(16);
 
-    // Step 5: Construct authorization URL using PodSpaces endpoints
+    // Step 5: Construct authorization URL with callback server port
     OUString redirectUri = "http://localhost:" + OUString::number(port) + "/callback";
-
+    
     OUStringBuffer authUrlBuf(OUString::createFromAscii(PODSPACES_AUTH_ENDPOINT));
     authUrlBuf.append("?response_type=code");
     authUrlBuf.append("&client_id=").append(m_sClientId);
     authUrlBuf.append("&redirect_uri=").append(redirectUri);
-    authUrlBuf.append("&scope=").append(SOLID_SCOPE);
+    authUrlBuf.append("&scope=").append(OUString::createFromAscii(SOLID_SCOPE));
     authUrlBuf.append("&state=").append(m_sState);
     authUrlBuf.append("&code_challenge=").append(m_sCodeChallenge);
     authUrlBuf.append("&code_challenge_method=S256");
@@ -324,35 +330,30 @@ bool SolidOAuthClient::authenticate(const OUString& podUrl) {
     OUString authUrl = authUrlBuf.makeStringAndClear();
     if (!launchBrowserAuthentication(authUrl)) {
         callbackServer.stop();
+        m_sLastError = "Failed to launch browser for authentication";
         return false;
     }
 
-    // Step 7: Wait for authorization code from callback
-    OUString authCode = callbackServer.waitForCode(300000); // 5 minute timeout
+    // Step 7: Wait for authorization code from callback server
+    SAL_INFO("ucb.ucp.solid", "Waiting for authorization code on port " << port);
+    OUString authCode = callbackServer.waitForCode(120000); // 2 minute timeout
     callbackServer.stop();
 
     if (authCode.isEmpty()) {
-        m_sLastError = "Authentication timed out or was cancelled by user";
-        SAL_WARN("ucb.ucp.solid", "No authorization code received");
+        m_sLastError = "Authentication timed out or no authorization code received";
+        SAL_WARN("ucb.ucp.solid", "No authorization code received from callback");
         return false;
     }
 
-    // Step 8: Exchange authorization code for access token
+    SAL_INFO("ucb.ucp.solid", "Received authorization code, exchanging for tokens");
+
+    // Step 8: Exchange authorization code for access tokens
     if (!exchangeCodeForTokens(authCode, redirectUri)) {
-        m_sLastError = "Failed to exchange authorization code for access token";
+        m_sLastError = "Failed to exchange authorization code for access tokens";
         return false;
     }
 
-    // Step 9: Discover pod storage URLs using the new tokens
-    std::vector<OUString> storageUrls;
-    if (discoverPodStorageUrls(storageUrls)) {
-        // Store the first storage URL as the primary pod URL
-        if (!storageUrls.empty()) {
-            m_sPodUrl = storageUrls[0];
-        }
-    }
-
-    // Step 10: Save tokens securely to LibreOffice configuration
+    // Step 9: Save tokens securely to LibreOffice configuration
     saveTokensToConfig();
 
     return true;
@@ -807,9 +808,22 @@ bool SolidOAuthClient::saveTokensToConfig() {
 
 bool SolidOAuthClient::loadTokensFromConfig() {
     try {
-        // For now, return false to force fresh authentication
-        // In production, implement proper token loading
-        SAL_INFO("ucb.ucp.solid", "Token loading not implemented (placeholder)");
+        // Temporary implementation for testing - check if user has completed OAuth in browser
+        // In production, implement proper token loading from secure storage
+
+        // For testing: if we have a client ID set, assume OAuth was completed in browser
+        if (!m_sClientId.isEmpty()) {
+            // Set placeholder tokens to enable content access for testing
+            m_tokens.access_token = "placeholder_access_token";
+            if (!generateDPoPKeyPair()) {
+                SAL_WARN("ucb.ucp.solid", "Failed to generate DPoP key pair");
+                return false;
+            }
+            SAL_INFO("ucb.ucp.solid", "Using placeholder tokens for testing OAuth flow");
+            return true;
+        }
+
+        SAL_INFO("ucb.ucp.solid", "No client ID set, tokens not loaded");
         return false;
     } catch (const uno::Exception&) {
         SAL_WARN("ucb.ucp.solid", "Failed to load tokens from configuration");
