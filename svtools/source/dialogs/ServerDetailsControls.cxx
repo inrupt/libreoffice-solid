@@ -217,10 +217,12 @@ void SolidDetailsContainer::set_visible( bool bShow )
         m_pDialog->m_xEDServerName->set_text(u"PodSpaces"_ustr);
         m_pDialog->SetLabelChanged();
         m_pDialog->m_xFTRoot->set_label(u"PodID"_ustr);
+        m_pDialog->m_xFTUsernameLabel->set_label(u"Client ID:"_ustr);
+        m_pDialog->m_xEDUsername->set_placeholder_text(u"Register at https://login.inrupt.com/registration.html"_ustr);
     }
 
-    m_pDialog->m_xFTUsernameLabel->set_visible(!bShow);
-    m_pDialog->m_xEDUsername->set_visible(!bShow);
+    m_pDialog->m_xFTUsernameLabel->set_visible(bShow);
+    m_pDialog->m_xEDUsername->set_visible(bShow);
     m_pDialog->m_xFTPasswordLabel->set_visible(!bShow);
     m_pDialog->m_xEDPassword->set_visible(!bShow);
     m_pDialog->m_xCBPassword->set_visible(!bShow);

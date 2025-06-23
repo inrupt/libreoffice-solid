@@ -86,7 +86,7 @@ public:
 
 private:
     void InitDetails();
-    bool performSolidOAuth(const OUString& sHttpsUrl);
+    bool performSolidOAuth(const OUString& sHttpsUrl, const OUString& sClientId);
 
     DECL_DLLPRIVATE_LINK(OKHdl, weld::Button&, void);
     DECL_DLLPRIVATE_LINK(DelHdl, weld::Button&, void);

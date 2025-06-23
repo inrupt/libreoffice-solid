@@ -26,10 +26,8 @@
 #include <com/sun/star/system/SystemShellExecute.hpp>
 #include <com/sun/star/system/SystemShellExecuteFlags.hpp>
 
-// Forward declaration for SolidOAuth
-namespace libreoffice { namespace solid {
-    class SolidOAuthClient;
-} }
+// Forward declaration for Solid authentication
+namespace libreoffice { namespace solid { class SolidOAuthClient; } }
 
 using namespace com::sun::star::uno;
 
@@ -183,16 +181,13 @@ std::shared_ptr<Place> PlaceEditDialog::GetPlace()
     return std::make_shared<Place>(m_xEDServerName->get_text(), GetServerUrl(), true);
 }
 
-bool PlaceEditDialog::performSolidOAuth(const OUString& sHttpsUrl)
+bool PlaceEditDialog::performSolidOAuth(const OUString& sHttpsUrl, const OUString& sClientId)
 {
-    (void)sHttpsUrl; // Suppress unused parameter warning
+    (void)sHttpsUrl; // Suppress unused parameter warning for now
     
     try
     {
-        // Create a simple OAuth client using a system command approach
-        // This is a simplified implementation that uses the existing SolidOAuth infrastructure
-        
-        // For now, create a minimal OAuth flow using browser launch
+        // Use direct browser launch approach with user's client ID
         css::uno::Reference<css::uno::XComponentContext> xContext = comphelper::getProcessComponentContext();
         
         // Use system shell execute to launch browser for OAuth
@@ -200,8 +195,9 @@ bool PlaceEditDialog::performSolidOAuth(const OUString& sHttpsUrl)
             css::uno::Reference<css::system::XSystemShellExecute> xShellExecute = 
                 css::system::SystemShellExecute::create(xContext);
                 
-            // Construct OAuth URL for PodSpaces (Inrupt's service)
-            OUString authUrl = "https://login.inrupt.com/authorization?response_type=code&client_id=LibreOffice&redirect_uri=http://localhost:8080/callback&scope=openid%20profile%20webid&code_challenge_method=S256";
+            // Construct OAuth URL for PodSpaces (Inrupt's service) with user's client ID
+            OUString authUrl = "https://login.inrupt.com/authorization?response_type=code&client_id=" + sClientId + 
+                "&redirect_uri=http://localhost:8080/callback&scope=openid%20profile%20webid&code_challenge_method=S256";
             
             // Show info dialog to user
             std::unique_ptr<weld::MessageDialog> xInfoBox(Application::CreateMessageDialog(m_xDialog.get(),
@@ -311,6 +307,17 @@ IMPL_LINK( PlaceEditDialog, OKHdl, weld::Button&, /*rBtn*/, void)
     // Check if this is a Solid Pod service
     if (dynamic_cast<SolidDetailsContainer*>(m_xCurrentDetails.get()))
     {
+        // Get the Client ID from the username field (repurposed for Solid)
+        OUString sClientId = m_xEDUsername->get_text().trim();
+        if (sClientId.isEmpty())
+        {
+            std::unique_ptr<weld::MessageDialog> xBox(Application::CreateMessageDialog(m_xDialog.get(),
+                VclMessageType::Warning, VclButtonsType::Ok, 
+                u"Please enter a Client ID. Register at https://login.inrupt.com/registration.html to get one."_ustr));
+            xBox->run();
+            return;
+        }
+        
         // Get the vnd-solid:// URL from SolidDetailsContainer
         INetURLObject solidUrl = m_xCurrentDetails->getUrl();
         OUString sVndSolidUrl = solidUrl.GetMainURL(INetURLObject::DecodeMechanism::NONE);
@@ -328,8 +335,8 @@ IMPL_LINK( PlaceEditDialog, OKHdl, weld::Button&, /*rBtn*/, void)
         
         if (!sHttpsUrl.isEmpty())
         {
-            // Trigger Solid OAuth authentication
-            if (performSolidOAuth(sHttpsUrl))
+            // Trigger Solid OAuth authentication with client ID
+            if (performSolidOAuth(sHttpsUrl, sClientId))
             {
                 // OAuth successful, proceed with dialog closure
                 m_xDialog->response(RET_OK);

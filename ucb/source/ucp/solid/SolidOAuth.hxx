@@ -78,6 +78,9 @@ public:
 
     // Main authentication flow
     bool authenticate(const OUString& podUrl);
+    
+    // Client ID management
+    void setClientId(const OUString& clientId) { m_sClientId = clientId; }
 
     // PodSpaces-specific functionality
     bool discoverPodStorageUrls(std::vector<OUString>& storageUrls) const;

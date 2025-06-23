@@ -43,7 +43,6 @@ namespace libreoffice { namespace solid {
 
 namespace {
     // PodSpaces OAuth2 configuration (following NextFM patterns)
-    const char* SOLID_CLIENT_ID = "LibreOffice";
     const char* SOLID_SCOPE = "openid profile webid";
 
     // PodSpaces-specific endpoints (not discovered)
@@ -104,7 +103,6 @@ namespace {
 
 SolidOAuthClient::SolidOAuthClient(const uno::Reference<uno::XComponentContext>& xContext)
     : m_xContext(xContext)
-    , m_sClientId(OUString::createFromAscii(SOLID_CLIENT_ID))
 {
 }
 
