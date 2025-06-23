@@ -196,9 +196,9 @@ bool PlaceEditDialog::performSolidOAuth(const OUString& sHttpsUrl, const OUStrin
                 css::system::SystemShellExecute::create(xContext);
 
             // Construct OAuth URL for PodSpaces (Inrupt's service) with user's Client ID Document URL
-            // The redirect_uri is specified in the Client ID Document, so we don't need to include it here
+            // Using Inrupt's app redirect_uri for testing
             OUString authUrl = "https://login.inrupt.com/authorization?response_type=code&client_id=" + sClientId +
-                "&scope=openid%20profile%20webid&code_challenge_method=S256";
+                "&redirect_uri=https://login.inrupt.com/registration.html&scope=openid%20profile%20webid&code_challenge_method=S256";
 
             // Show info dialog to user
             std::unique_ptr<weld::MessageDialog> xInfoBox(Application::CreateMessageDialog(m_xDialog.get(),
