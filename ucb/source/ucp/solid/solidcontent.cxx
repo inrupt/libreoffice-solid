@@ -24,6 +24,7 @@
 #include <cppuhelper/queryinterface.hxx>
 #include <cppuhelper/typeprovider.hxx>
 #include <osl/mutex.hxx>
+#include <sal/log.hxx>
 #include "SolidOAuth.hxx"
 
 using namespace css;
@@ -126,7 +127,7 @@ bool Content::initResourceAccess()
     {
         // Get the vnd-solid URL
         OUString sVndSolidUrl = m_xIdentifier->getContentIdentifier();
-        
+
         // Convert to HTTPS for authentication
         OUString sHttpsUrl;
         if (sVndSolidUrl.startsWithIgnoreAsciiCase("vnd-solid://"))
@@ -142,35 +143,35 @@ bool Content::initResourceAccess()
             // Not a vnd-solid URL
             return false;
         }
-        
+
         // Create OAuth client and attempt authentication
         SolidOAuthClient oauthClient(m_xContext);
-        
+
         // Check if we already have valid tokens
         if (oauthClient.loadTokensFromConfig() && oauthClient.isAuthenticated())
         {
-            SAL_INFO("ucb.ucp.solid", "Using existing valid tokens for " << sHttpsUrl);
+            SAL_INFO("ucb.ucp.solid", "Using existing valid tokens for " << sHttpsUrl.toUtf8());
             return true;
         }
-        
+
         // Trigger OAuth authentication flow
-        SAL_INFO("ucb.ucp.solid", "Initiating OAuth authentication for " << sHttpsUrl);
+        SAL_INFO("ucb.ucp.solid", "Initiating OAuth authentication for " << sHttpsUrl.toUtf8());
         bool bAuthSuccess = oauthClient.authenticate(sHttpsUrl);
-        
+
         if (bAuthSuccess)
         {
-            SAL_INFO("ucb.ucp.solid", "OAuth authentication successful for " << sHttpsUrl);
+            SAL_INFO("ucb.ucp.solid", "OAuth authentication successful for " << sHttpsUrl.toUtf8());
             return true;
         }
         else
         {
-            SAL_WARN("ucb.ucp.solid", "OAuth authentication failed for " << sHttpsUrl);
+            SAL_WARN("ucb.ucp.solid", "OAuth authentication failed for " << sHttpsUrl.toUtf8());
             return false;
         }
     }
     catch (const uno::Exception& e)
     {
-        SAL_WARN("ucb.ucp.solid", "Exception during authentication: " << e.Message);
+        SAL_WARN("ucb.ucp.solid", "Exception during authentication: " << e.Message.toUtf8());
         return false;
     }
 }
