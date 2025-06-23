@@ -82,6 +82,7 @@ public:
     bool IsRememberChecked() const { return m_xCBPassword->get_active(); }
 
     void ShowPasswordControl() { m_bShowPassword = true; }
+    void SetLabelChanged() { m_bLabelChanged = true; }
 
 private:
     void InitDetails();
