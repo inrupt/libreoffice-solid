@@ -307,8 +307,8 @@ IMPL_LINK( PlaceEditDialog, OKHdl, weld::Button&, /*rBtn*/, void)
     // Check if this is a Solid Pod service
     if (dynamic_cast<SolidDetailsContainer*>(m_xCurrentDetails.get()))
     {
-        // Get the Client ID from the username field (repurposed for Solid)
-        OUString sClientId = m_xEDUsername->get_text().trim();
+        // Get the Client ID from the root field (repurposed for Solid)
+        OUString sClientId = m_xEDRoot->get_text().trim();
         if (sClientId.isEmpty())
         {
             std::unique_ptr<weld::MessageDialog> xBox(Application::CreateMessageDialog(m_xDialog.get(),
