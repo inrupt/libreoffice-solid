@@ -12,6 +12,7 @@
 #include <rtl/ustring.hxx>
 #include <com/sun/star/ucb/XContent.hpp>
 #include <com/sun/star/ucb/XContentIdentifier.hpp>
+#include <com/sun/star/ucb/XContentEventListener.hpp>
 #include <com/sun/star/lang/XServiceInfo.hpp>
 #include <com/sun/star/uno/XComponentContext.hpp>
 #include <cppuhelper/implbase_ex.hxx>
@@ -47,10 +48,13 @@ public:
     // XServiceInfo
     virtual OUString SAL_CALL getImplementationName() override;
     virtual css::uno::Sequence<OUString> SAL_CALL getSupportedServiceNames() override;
+    virtual sal_Bool SAL_CALL supportsService(const OUString& ServiceName) override;
 
     // XContent
     virtual css::uno::Reference<css::ucb::XContentIdentifier> SAL_CALL getIdentifier() override;
     virtual OUString SAL_CALL getContentType() override;
+    virtual void SAL_CALL addContentEventListener(const css::uno::Reference<css::ucb::XContentEventListener>& Listener) override;
+    virtual void SAL_CALL removeContentEventListener(const css::uno::Reference<css::ucb::XContentEventListener>& Listener) override;
 
     // Non-interface methods
     bool initResourceAccess();

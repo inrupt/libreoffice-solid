@@ -83,7 +83,7 @@ OUString SAL_CALL Content::getImplementationName()
 css::uno::Sequence<OUString> SAL_CALL Content::getSupportedServiceNames()
 {
     css::uno::Sequence<OUString> aSeq(1);
-    aSeq[0] = OUString("com.sun.star.ucb.SolidContent");
+    aSeq.getArray()[0] = OUString("com.sun.star.ucb.SolidContent");
     return aSeq;
 }
 
@@ -93,9 +93,30 @@ css::uno::Reference<css::ucb::XContentIdentifier> SAL_CALL Content::getIdentifie
     return m_xIdentifier;
 }
 
+sal_Bool SAL_CALL Content::supportsService(const OUString& ServiceName)
+{
+    const css::uno::Sequence<OUString> aServiceNames = getSupportedServiceNames();
+    for (const auto& rName : aServiceNames)
+    {
+        if (rName == ServiceName)
+            return true;
+    }
+    return false;
+}
+
 OUString SAL_CALL Content::getContentType()
 {
     return SOLID_CONTENT_TYPE;
+}
+
+void SAL_CALL Content::addContentEventListener(const css::uno::Reference<css::ucb::XContentEventListener>& /*Listener*/)
+{
+    // TODO: Implement content event listener management
+}
+
+void SAL_CALL Content::removeContentEventListener(const css::uno::Reference<css::ucb::XContentEventListener>& /*Listener*/)
+{
+    // TODO: Implement content event listener management
 }
 
 // Non-interface methods

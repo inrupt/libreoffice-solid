@@ -70,45 +70,6 @@ void SAL_CALL ContentProvider::initialize( const uno::Sequence< uno::Any >& aArg
     (void)aArguments;
 }
 
-// XInterface methods.
-void SAL_CALL ContentProvider::acquire()
-    noexcept
-{
-    OWeakObject::acquire();
-}
-
-void SAL_CALL ContentProvider::release()
-    noexcept
-{
-    OWeakObject::release();
-}
-
-css::uno::Any SAL_CALL ContentProvider::queryInterface( const css::uno::Type & rType )
-{
-    css::uno::Any aRet = cppu::queryInterface( rType,
-                                               static_cast< lang::XTypeProvider* >(this),
-                                               static_cast< lang::XServiceInfo* >(this),
-                                               static_cast< ucb::XContentProvider* >(this)
-                                               );
-    return aRet.hasValue() ? aRet : OWeakObject::queryInterface( rType );
-}
-
-// XTypeProvider methods.
-uno::Sequence< sal_Int8 > SAL_CALL ContentProvider::getImplementationId()
-{
-    return css::uno::Sequence<sal_Int8>();
-}
-
-uno::Sequence< uno::Type > SAL_CALL ContentProvider::getTypes()
-{
-    static cppu::OTypeCollection s_aCollection(
-                    cppu::UnoType<lang::XTypeProvider>::get(),
-                    cppu::UnoType<lang::XServiceInfo>::get(),
-                    cppu::UnoType<ucb::XContentProvider>::get()
-                );
-
-    return s_aCollection.getTypes();
-}
 
 // XServiceInfo methods.
 OUString SAL_CALL ContentProvider::getImplementationName()
@@ -221,7 +182,7 @@ ucb_solid_ContentProvider_get_implementation(
 {
     css::uno::Reference<css::uno::XComponentContext> xContext(context);
     rtl::Reference<libreoffice::solid::ContentProvider> xProvider = new libreoffice::solid::ContentProvider(xContext);
-    return static_cast<css::uno::XInterface*>(xProvider.get());
+    return cppu::acquire(xProvider.get());
 }
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */
