@@ -195,9 +195,10 @@ bool PlaceEditDialog::performSolidOAuth(const OUString& sHttpsUrl, const OUStrin
             css::uno::Reference<css::system::XSystemShellExecute> xShellExecute = 
                 css::system::SystemShellExecute::create(xContext);
                 
-            // Construct OAuth URL for PodSpaces (Inrupt's service) with user's client ID
+            // Construct OAuth URL for PodSpaces (Inrupt's service) with user's Client ID Document URL
+            // The redirect_uri is specified in the Client ID Document, so we don't need to include it here
             OUString authUrl = "https://login.inrupt.com/authorization?response_type=code&client_id=" + sClientId + 
-                "&redirect_uri=http://127.0.0.1:8080/callback&scope=openid%20profile%20webid&code_challenge_method=S256";
+                "&scope=openid%20profile%20webid&code_challenge_method=S256";
             
             // Show info dialog to user
             std::unique_ptr<weld::MessageDialog> xInfoBox(Application::CreateMessageDialog(m_xDialog.get(),
@@ -307,13 +308,23 @@ IMPL_LINK( PlaceEditDialog, OKHdl, weld::Button&, /*rBtn*/, void)
     // Check if this is a Solid Pod service
     if (dynamic_cast<SolidDetailsContainer*>(m_xCurrentDetails.get()))
     {
-        // Get the Client ID from the root field (repurposed for Solid)
+        // Get the Client ID Document URL from the root field (repurposed for Solid)
         OUString sClientId = m_xEDRoot->get_text().trim();
         if (sClientId.isEmpty())
         {
             std::unique_ptr<weld::MessageDialog> xBox(Application::CreateMessageDialog(m_xDialog.get(),
                 VclMessageType::Warning, VclButtonsType::Ok, 
-                u"Please enter a Client ID. Register at https://login.inrupt.com/registration.html to get one."_ustr));
+                u"Please enter a Client ID Document URL. Register at https://login.inrupt.com/registration.html to get one."_ustr));
+            xBox->run();
+            return;
+        }
+        
+        // Validate that the Client ID is a URL
+        if (!sClientId.startsWith("https://"))
+        {
+            std::unique_ptr<weld::MessageDialog> xBox(Application::CreateMessageDialog(m_xDialog.get(),
+                VclMessageType::Warning, VclButtonsType::Ok, 
+                u"Client ID Document URL must start with https:// (e.g., https://login.inrupt.com/catalog/app/id)"_ustr));
             xBox->run();
             return;
         }

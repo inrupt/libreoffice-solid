@@ -216,8 +216,8 @@ void SolidDetailsContainer::set_visible( bool bShow )
     if (bShow) {
         m_pDialog->m_xEDServerName->set_text(u"PodSpaces"_ustr);
         m_pDialog->SetLabelChanged();
-        m_pDialog->m_xFTRoot->set_label(u"Client ID"_ustr);
-        m_pDialog->m_xEDRoot->set_placeholder_text(u"Register at https://login.inrupt.com/registration.html"_ustr);
+        m_pDialog->m_xFTRoot->set_label(u"Client ID Document URL"_ustr);
+        m_pDialog->m_xEDRoot->set_placeholder_text(u"https://login.inrupt.com/catalog/app/id"_ustr);
         m_pDialog->m_xEDHost->set_placeholder_text(u"Paste your full pod URL here"_ustr);
     }
 
