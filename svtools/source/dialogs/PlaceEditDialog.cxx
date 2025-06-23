@@ -196,9 +196,9 @@ bool PlaceEditDialog::performSolidOAuth(const OUString& sHttpsUrl, const OUStrin
                 css::system::SystemShellExecute::create(xContext);
 
             // Construct OAuth URL for PodSpaces (Inrupt's service) with user's Client ID Document URL
-            // Using Inrupt's app redirect_uri for testing
+            // Using LibreOffice's own Client ID Document with localhost callback
             OUString authUrl = "https://login.inrupt.com/authorization?response_type=code&client_id=" + sClientId +
-                "&redirect_uri=https://login.inrupt.com/registration.html&scope=openid%20profile%20webid&code_challenge_method=S256";
+                "&redirect_uri=http://localhost:8080/callback&scope=openid%20profile%20webid&code_challenge_method=S256";
 
             // Show info dialog to user
             std::unique_ptr<weld::MessageDialog> xInfoBox(Application::CreateMessageDialog(m_xDialog.get(),
@@ -309,14 +309,12 @@ IMPL_LINK( PlaceEditDialog, OKHdl, weld::Button&, /*rBtn*/, void)
     if (dynamic_cast<SolidDetailsContainer*>(m_xCurrentDetails.get()))
     {
         // Get the Client ID Document URL from the root field (repurposed for Solid)
-        // TODO: This is temporary - using Inrupt's own app for testing.
-        // LibreOffice will need to host its own Client ID Document for production use.
         OUString sClientId = m_xEDRoot->get_text().trim();
         if (sClientId.isEmpty())
         {
             std::unique_ptr<weld::MessageDialog> xBox(Application::CreateMessageDialog(m_xDialog.get(),
                 VclMessageType::Warning, VclButtonsType::Ok,
-                u"Please enter a Client ID Document URL. Currently using Inrupt's test app for testing."_ustr));
+                u"Please enter a Client ID Document URL."_ustr));
             xBox->run();
             return;
         }
@@ -326,7 +324,7 @@ IMPL_LINK( PlaceEditDialog, OKHdl, weld::Button&, /*rBtn*/, void)
         {
             std::unique_ptr<weld::MessageDialog> xBox(Application::CreateMessageDialog(m_xDialog.get(),
                 VclMessageType::Warning, VclButtonsType::Ok,
-                u"Client ID Document URL must start with https:// (e.g., https://login.inrupt.com/catalog/app/id)"_ustr));
+                u"Client ID Document URL must start with https://"_ustr));
             xBox->run();
             return;
         }

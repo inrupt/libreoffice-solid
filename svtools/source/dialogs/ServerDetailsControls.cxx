@@ -217,7 +217,7 @@ void SolidDetailsContainer::set_visible( bool bShow )
         m_pDialog->m_xEDServerName->set_text(u"PodSpaces"_ustr);
         m_pDialog->SetLabelChanged();
         m_pDialog->m_xFTRoot->set_label(u"Client ID Document URL"_ustr);
-        m_pDialog->m_xEDRoot->set_text(u"https://login.inrupt.com/catalog/app/id"_ustr);
+        m_pDialog->m_xEDRoot->set_text(u"https://inrupt.github.io/libreoffice-solid/libreoffice-solid-client.json"_ustr);
         m_pDialog->m_xEDHost->set_placeholder_text(u"Paste your full pod URL here"_ustr);
     }
 
@@ -306,7 +306,7 @@ bool SolidDetailsContainer::setUrl( const INetURLObject& rUrl )
 
         // Keep the existing Client ID Document URL if already set, otherwise use default
         if (m_pDialog->m_xEDRoot->get_text().trim().isEmpty())
-            m_pDialog->m_xEDRoot->set_text(u"https://login.inrupt.com/catalog/app/id"_ustr);
+            m_pDialog->m_xEDRoot->set_text(u"https://inrupt.github.io/libreoffice-solid/libreoffice-solid-client.json"_ustr);
 
         return true;
     }
@@ -341,7 +341,7 @@ bool SolidDetailsContainer::setUrl( const INetURLObject& rUrl )
 
         // Keep the existing Client ID Document URL if already set, otherwise use default
         if (m_pDialog->m_xEDRoot->get_text().trim().isEmpty())
-            m_pDialog->m_xEDRoot->set_text(u"https://login.inrupt.com/catalog/app/id"_ustr);
+            m_pDialog->m_xEDRoot->set_text(u"https://inrupt.github.io/libreoffice-solid/libreoffice-solid-client.json"_ustr);
 
         return true;
     }
