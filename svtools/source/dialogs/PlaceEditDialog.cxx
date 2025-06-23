@@ -19,6 +19,16 @@
 
 #include "ServerDetailsControls.hxx"
 
+// Include for Solid OAuth authentication
+#include <comphelper/processfactory.hxx>
+#include <vcl/weld.hxx>
+#include <vcl/svapp.hxx>
+#include <com/sun/star/system/SystemShellExecute.hpp>
+#include <com/sun/star/system/SystemShellExecuteFlags.hpp>
+
+// Forward declaration for Solid authentication
+namespace libreoffice { namespace solid { class SolidOAuthClient; } }
+
 using namespace com::sun::star::uno;
 
 PlaceEditDialog::PlaceEditDialog(weld::Window* pParent)
@@ -171,6 +181,52 @@ std::shared_ptr<Place> PlaceEditDialog::GetPlace()
     return std::make_shared<Place>(m_xEDServerName->get_text(), GetServerUrl(), true);
 }
 
+bool PlaceEditDialog::performSolidOAuth(const OUString& sHttpsUrl, const OUString& sClientId)
+{
+    (void)sHttpsUrl; // Suppress unused parameter warning for now
+
+    try
+    {
+        // Use direct browser launch approach with user's client ID
+        css::uno::Reference<css::uno::XComponentContext> xContext = comphelper::getProcessComponentContext();
+
+        // Use system shell execute to launch browser for OAuth
+        try {
+            css::uno::Reference<css::system::XSystemShellExecute> xShellExecute =
+                css::system::SystemShellExecute::create(xContext);
+
+            // Construct OAuth URL for PodSpaces (Inrupt's service) with user's Client ID Document URL
+            // The redirect_uri is specified in the Client ID Document, so we don't need to include it here
+            OUString authUrl = "https://login.inrupt.com/authorization?response_type=code&client_id=" + sClientId +
+                "&scope=openid%20profile%20webid&code_challenge_method=S256";
+
+            // Show info dialog to user
+            std::unique_ptr<weld::MessageDialog> xInfoBox(Application::CreateMessageDialog(m_xDialog.get(),
+                VclMessageType::Info, VclButtonsType::OkCancel,
+                u"Solid Pod authentication will open in your browser. Click OK to continue, then return here after completing authentication."_ustr));
+
+            if (xInfoBox->run() != RET_OK)
+                return false;
+
+            xShellExecute->execute(authUrl, OUString(), css::system::SystemShellExecuteFlags::URIS_ONLY);
+
+            // For now, show a simple dialog asking user to confirm completion
+            std::unique_ptr<weld::MessageDialog> xConfirmBox(Application::CreateMessageDialog(m_xDialog.get(),
+                VclMessageType::Question, VclButtonsType::YesNo,
+                u"Have you completed the authentication in your browser? Click Yes if authentication succeeded, No to cancel."_ustr));
+
+            return (xConfirmBox->run() == RET_YES);
+
+        } catch (const css::uno::Exception&) {
+            return false;
+        }
+    }
+    catch (...)
+    {
+        return false;
+    }
+}
+
 void PlaceEditDialog::InitDetails( )
 {
     // Create CMIS controls for each server type
@@ -249,6 +305,69 @@ IMPL_LINK( PlaceEditDialog, OKHdl, weld::Button&, /*rBtn*/, void)
     if ( !m_xCurrentDetails )
         return;
 
+    // Check if this is a Solid Pod service
+    if (dynamic_cast<SolidDetailsContainer*>(m_xCurrentDetails.get()))
+    {
+        // Get the Client ID Document URL from the root field (repurposed for Solid)
+        // TODO: This is temporary - using Inrupt's own app for testing.
+        // LibreOffice will need to host its own Client ID Document for production use.
+        OUString sClientId = m_xEDRoot->get_text().trim();
+        if (sClientId.isEmpty())
+        {
+            std::unique_ptr<weld::MessageDialog> xBox(Application::CreateMessageDialog(m_xDialog.get(),
+                VclMessageType::Warning, VclButtonsType::Ok,
+                u"Please enter a Client ID Document URL. Currently using Inrupt's test app for testing."_ustr));
+            xBox->run();
+            return;
+        }
+
+        // Validate that the Client ID is a URL
+        if (!sClientId.startsWith("https://"))
+        {
+            std::unique_ptr<weld::MessageDialog> xBox(Application::CreateMessageDialog(m_xDialog.get(),
+                VclMessageType::Warning, VclButtonsType::Ok,
+                u"Client ID Document URL must start with https:// (e.g., https://login.inrupt.com/catalog/app/id)"_ustr));
+            xBox->run();
+            return;
+        }
+
+        // Get the vnd-solid:// URL from SolidDetailsContainer
+        INetURLObject solidUrl = m_xCurrentDetails->getUrl();
+        OUString sVndSolidUrl = solidUrl.GetMainURL(INetURLObject::DecodeMechanism::NONE);
+
+        // Convert vnd-solid:// to https:// for OAuth
+        OUString sHttpsUrl;
+        if (sVndSolidUrl.startsWith("vnd-solid://"))
+        {
+            sHttpsUrl = "https://" + sVndSolidUrl.copy(12);
+        }
+        else if (sVndSolidUrl.startsWith("vnd-solids://"))
+        {
+            sHttpsUrl = "https://" + sVndSolidUrl.copy(13);
+        }
+
+        if (!sHttpsUrl.isEmpty())
+        {
+            // Trigger Solid OAuth authentication with client ID
+            if (performSolidOAuth(sHttpsUrl, sClientId))
+            {
+                // OAuth successful, proceed with dialog closure
+                m_xDialog->response(RET_OK);
+            }
+            else
+            {
+                // OAuth failed, show error and stay in dialog
+                std::unique_ptr<weld::MessageDialog> xBox(Application::CreateMessageDialog(m_xDialog.get(),
+                    VclMessageType::Warning, VclButtonsType::Ok,
+                    u"Solid Pod authentication failed. Please try again."_ustr));
+                xBox->run();
+                return;
+            }
+        }
+        return;
+    }
+
+    // Existing logic for other cloud services
     OUString sUrl = m_xCurrentDetails->getUrl().GetHost( INetURLObject::DecodeMechanism::WithCharset );
 
     if ( sUrl.startsWith( GDRIVE_BASE_URL )

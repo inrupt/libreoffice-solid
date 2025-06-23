@@ -216,7 +216,9 @@ void SolidDetailsContainer::set_visible( bool bShow )
     if (bShow) {
         m_pDialog->m_xEDServerName->set_text(u"PodSpaces"_ustr);
         m_pDialog->SetLabelChanged();
-        m_pDialog->m_xFTRoot->set_label(u"PodID"_ustr);
+        m_pDialog->m_xFTRoot->set_label(u"Client ID Document URL"_ustr);
+        m_pDialog->m_xEDRoot->set_text(u"https://login.inrupt.com/catalog/app/id"_ustr);
+        m_pDialog->m_xEDHost->set_placeholder_text(u"Paste your full pod URL here"_ustr);
     }
 
     m_pDialog->m_xFTUsernameLabel->set_visible(!bShow);
@@ -231,29 +233,39 @@ void SolidDetailsContainer::set_visible( bool bShow )
 
 INetURLObject SolidDetailsContainer::getUrl( )
 {
-    // Get the standard HTTPS URL from parent class
-    INetURLObject aHostUrl = HostDetailsContainer::getUrl();
+    // Get the pod URL from the host field (user pastes full URL)
+    OUString sPodUrl = m_pDialog->m_xEDHost->get_text().trim();
 
-    // Transform https:// to vnd-solid:// for UCB routing
-    if (aHostUrl.GetProtocol() == INetProtocol::Https || aHostUrl.GetProtocol() == INetProtocol::Http)
+    if (sPodUrl.isEmpty())
+        return INetURLObject();
+
+    // Parse the pod URL to extract host and pod ID
+    // Expected format: https://storage.inrupt.com/78d2ff57-2563-412f-836e-49d686118dd8/
+    INetURLObject aPodUrl(sPodUrl);
+    if (aPodUrl.GetProtocol() != INetProtocol::Https && aPodUrl.GetProtocol() != INetProtocol::Http)
+        return INetURLObject();
+
+    // Extract host (e.g., "storage.inrupt.com")
+    OUString sHost = aPodUrl.GetHost();
+
+    // Extract pod ID from the path (first path segment)
+    OUString sPath = aPodUrl.GetURLPath();
+    OUString sPodId;
+    if (sPath.startsWith("/") && sPath.getLength() > 1)
     {
-        OUString sHttpsUrl = aHostUrl.GetMainURL(INetURLObject::DecodeMechanism::NONE);
-        OUString sVndSolidUrl;
-
-        if (sHttpsUrl.startsWith("https://"))
-        {
-            sVndSolidUrl = "vnd-solid://" + sHttpsUrl.copy(8); // Remove "https://"
-        }
-        else if (sHttpsUrl.startsWith("http://"))
-        {
-            sVndSolidUrl = "vnd-solid://" + sHttpsUrl.copy(7); // Remove "http://"
-        }
-
-        INetURLObject aVndSolidUrl(sVndSolidUrl);
-        return aVndSolidUrl;
+        sal_Int32 nSlashPos = sPath.indexOf('/', 1);
+        if (nSlashPos == -1)
+            sPodId = sPath.copy(1); // Remove leading slash
+        else
+            sPodId = sPath.copy(1, nSlashPos - 1); // Extract between slashes
     }
 
-    return aHostUrl;
+    // Construct vnd-solid URL: vnd-solid://host/podId
+    OUString sVndSolidUrl = "vnd-solid://" + sHost;
+    if (!sPodId.isEmpty())
+        sVndSolidUrl += "/" + sPodId;
+
+    return INetURLObject(sVndSolidUrl);
 }
 
 bool SolidDetailsContainer::verifyScheme( const OUString& rScheme )
