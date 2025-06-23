@@ -1,0 +1,11 @@
+{
+  "@context": "https://www.w3.org/ns/solid/oidc-context.jsonld",
+  "client_id": "https://inrupt.github.io/libreoffice-solid/libreoffice-solid-client.json",
+  "client_name": "LibreOffice Solid Integration",
+  "redirect_uris": ["http://localhost:8080/callback"],
+  "grant_types": ["authorization_code"],
+  "response_types": ["code"],
+  "application_type": "native",
+  "logo_uri": "https://www.libreoffice.org/assets/Branding/logo-libreoffice.png",
+  "client_uri": "https://github.com/inrupt/libreoffice-solid"
+}
