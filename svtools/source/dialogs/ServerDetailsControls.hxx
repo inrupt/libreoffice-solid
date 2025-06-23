@@ -120,6 +120,7 @@ class SolidDetailsContainer final : public HostDetailsContainer
 
         virtual void set_visible( bool bShow ) override;
         virtual INetURLObject getUrl( ) override;
+        virtual bool setUrl( const INetURLObject& rUrl ) override;
         virtual bool enableUserCredentials( ) override { return false; };
 
     private:

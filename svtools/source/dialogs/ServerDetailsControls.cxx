@@ -217,7 +217,7 @@ void SolidDetailsContainer::set_visible( bool bShow )
         m_pDialog->m_xEDServerName->set_text(u"PodSpaces"_ustr);
         m_pDialog->SetLabelChanged();
         m_pDialog->m_xFTRoot->set_label(u"Client ID Document URL"_ustr);
-        m_pDialog->m_xEDRoot->set_placeholder_text(u"https://login.inrupt.com/catalog/app/id"_ustr);
+        m_pDialog->m_xEDRoot->set_text(u"https://inrupt.github.io/libreoffice-solid/libreoffice-solid-client.json"_ustr);
         m_pDialog->m_xEDHost->set_placeholder_text(u"Paste your full pod URL here"_ustr);
     }
 
@@ -235,19 +235,19 @@ INetURLObject SolidDetailsContainer::getUrl( )
 {
     // Get the pod URL from the host field (user pastes full URL)
     OUString sPodUrl = m_pDialog->m_xEDHost->get_text().trim();
-    
+
     if (sPodUrl.isEmpty())
         return INetURLObject();
-    
+
     // Parse the pod URL to extract host and pod ID
     // Expected format: https://storage.inrupt.com/78d2ff57-2563-412f-836e-49d686118dd8/
     INetURLObject aPodUrl(sPodUrl);
     if (aPodUrl.GetProtocol() != INetProtocol::Https && aPodUrl.GetProtocol() != INetProtocol::Http)
         return INetURLObject();
-    
+
     // Extract host (e.g., "storage.inrupt.com")
     OUString sHost = aPodUrl.GetHost();
-    
+
     // Extract pod ID from the path (first path segment)
     OUString sPath = aPodUrl.GetURLPath();
     OUString sPodId;
@@ -259,19 +259,100 @@ INetURLObject SolidDetailsContainer::getUrl( )
         else
             sPodId = sPath.copy(1, nSlashPos - 1); // Extract between slashes
     }
-    
+
     // Construct vnd-solid URL: vnd-solid://host/podId
     OUString sVndSolidUrl = "vnd-solid://" + sHost;
     if (!sPodId.isEmpty())
         sVndSolidUrl += "/" + sPodId;
-    
+
     return INetURLObject(sVndSolidUrl);
+}
+
+bool SolidDetailsContainer::setUrl( const INetURLObject& rUrl )
+{
+    OUString sUrl = rUrl.GetMainURL(INetURLObject::DecodeMechanism::NONE);
+
+    // Check directly against the URL string since INetURLObject may not recognize vnd-solid scheme
+    if (!sUrl.startsWith("vnd-solid://") && !sUrl.startsWith("vnd-solids://"))
+        return false;
+
+    // Handle vnd-solid:// URLs
+    if (sUrl.startsWith("vnd-solid://"))
+    {
+        // Parse vnd-solid://host/podId format
+        OUString sRemainder = sUrl.copy(12); // Remove "vnd-solid://"
+
+        // Extract host and pod ID
+        sal_Int32 nSlashPos = sRemainder.indexOf('/');
+        OUString sHost, sPodId;
+
+        if (nSlashPos != -1)
+        {
+            sHost = sRemainder.copy(0, nSlashPos);
+            sPodId = sRemainder.copy(nSlashPos + 1);
+        }
+        else
+        {
+            sHost = sRemainder;
+        }
+
+        // Reconstruct the https:// pod URL for display in the host field
+        OUString sPodUrl = "https://" + sHost;
+        if (!sPodId.isEmpty())
+            sPodUrl += "/" + sPodId;
+
+        // Set the host field with the full pod URL (this is where user enters pod URL)
+        m_pDialog->m_xEDHost->set_text(sPodUrl);
+
+        // Keep the existing Client ID Document URL if already set, otherwise use default
+        if (m_pDialog->m_xEDRoot->get_text().trim().isEmpty())
+            m_pDialog->m_xEDRoot->set_text(u"https://inrupt.github.io/libreoffice-solid/libreoffice-solid-client.json"_ustr);
+
+        return true;
+    }
+
+    // Handle vnd-solids:// URLs (secure variant)
+    if (sUrl.startsWith("vnd-solids://"))
+    {
+        // Parse vnd-solids://host/podId format
+        OUString sRemainder = sUrl.copy(13); // Remove "vnd-solids://"
+
+        // Extract host and pod ID
+        sal_Int32 nSlashPos = sRemainder.indexOf('/');
+        OUString sHost, sPodId;
+
+        if (nSlashPos != -1)
+        {
+            sHost = sRemainder.copy(0, nSlashPos);
+            sPodId = sRemainder.copy(nSlashPos + 1);
+        }
+        else
+        {
+            sHost = sRemainder;
+        }
+
+        // Reconstruct the https:// pod URL for display in the host field
+        OUString sPodUrl = "https://" + sHost;
+        if (!sPodId.isEmpty())
+            sPodUrl += "/" + sPodId;
+
+        // Set the host field with the full pod URL
+        m_pDialog->m_xEDHost->set_text(sPodUrl);
+
+        // Keep the existing Client ID Document URL if already set, otherwise use default
+        if (m_pDialog->m_xEDRoot->get_text().trim().isEmpty())
+            m_pDialog->m_xEDRoot->set_text(u"https://inrupt.github.io/libreoffice-solid/libreoffice-solid-client.json"_ustr);
+
+        return true;
+    }
+
+    return false;
 }
 
 bool SolidDetailsContainer::verifyScheme( const OUString& rScheme )
 {
     // Solid pods use HTTPS URLs in user input, but we convert to vnd-solid internally
-    return rScheme == "https://" || rScheme == "vnd-solid://";
+    return rScheme == "https://" || rScheme == "vnd-solid://" || rScheme == "vnd-solids://";
 }
 
 SmbDetailsContainer::SmbDetailsContainer(PlaceEditDialog* pDialog)
