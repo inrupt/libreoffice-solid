@@ -204,8 +204,8 @@ IMPL_LINK( DavDetailsContainer, ToggledDavsHdl, weld::Toggleable&, rCheckBox, vo
 SolidDetailsContainer::SolidDetailsContainer(PlaceEditDialog* pDialog)
     : HostDetailsContainer(pDialog, 443, u"https"_ustr)
 {
-    // Set default label to PodSpaces
-    m_pDialog->m_xEDName->set_text(u"PodSpaces"_ustr);
+    m_pDialog->m_xEDHost->set_text(u"storage.inrupt.com"_ustr);
+    m_pDialog->m_xEDServerName->set_text(u"PodSpaces"_ustr);
     set_visible( false );
 }
 
@@ -213,18 +213,19 @@ void SolidDetailsContainer::set_visible( bool bShow )
 {
     HostDetailsContainer::set_visible( bShow );
 
-    // Hide credentials controls for Solid since it uses OAuth
+    if (bShow) {
+        m_pDialog->m_xEDServerName->set_text(u"PodSpaces"_ustr);
+        m_pDialog->SetLabelChanged();
+        m_pDialog->m_xFTRoot->set_label(u"PodID"_ustr);
+    }
+
     m_pDialog->m_xFTUsernameLabel->set_visible(!bShow);
     m_pDialog->m_xEDUsername->set_visible(!bShow);
     m_pDialog->m_xFTPasswordLabel->set_visible(!bShow);
     m_pDialog->m_xEDPassword->set_visible(!bShow);
     m_pDialog->m_xCBPassword->set_visible(!bShow);
-
-    // Hide port field - Solid always uses HTTPS (port 443)
-    m_pDialog->m_xFTPortLabel->set_visible(!bShow);
+    m_pDialog->m_xFTPort->set_visible(!bShow);
     m_pDialog->m_xEDPort->set_visible(!bShow);
-
-    // Hide secure connection checkbox - Solid is always HTTPS
     m_pDialog->m_xCBDavs->set_visible(false);
 }
 
